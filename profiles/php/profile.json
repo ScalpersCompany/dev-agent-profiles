@@ -1,0 +1,12 @@
+{
+  "name": "php",
+  "version": "0.1.0",
+  "api": 1,
+  "language": "php",
+  "description": "PHP 8 profile skeleton with PHPStan, PHPCS and PHPUnit",
+  "guard": [],
+  "verify": "verify/config.env.example",
+  "skills": "skills",
+  "evals": "evals/cases",
+  "agents": "AGENTS.fragment.md"
+}

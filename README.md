@@ -8,6 +8,10 @@ Private environment profiles for `dev-agent-kit`. One directory per environment:
 The core keeps the contract, the gate and the hooks. A profile supplies the language
 content; it does not replace `guard`, `verify` or the hooks.
 
+New profiles start from the core template: `dev-agent-kit/profiles/_template`, generated
+with `scripts/new-profile.sh` and checked with `scripts/validate-profile.py`. The guide is
+`dev-agent-kit/docs/CREAR-PERFIL.md`.
+
 ## Use
 
 Copy a profile into the target repository as `.dev-agent/profiles/<name>`, write
