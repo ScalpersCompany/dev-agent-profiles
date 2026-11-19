@@ -52,6 +52,13 @@ not replace rsc-harness. rsc-harness is the process/spec/ASDD layer. If the repo
 uses it, its skills stay in `.rsc/skills` and this profile does not copy them. If
 the repo does not use that workflow, this profile works without rsc-harness.
 
+## Agent skills
+
+- SDD is the `spec-driven-development` skill, installed globally in the agent.
+- ODD is always-on text in `AGENTS.md`/`SOUL.md`; it is not a skill.
+- RDD is the `gentle-ai review` binary; it is not a skill.
+- The rsc-harness skills are repo-local in `.rsc/skills`; they are not copied here.
+
 ## Boundaries
 
 This profile never deploys, never touches production and never uses the shared
