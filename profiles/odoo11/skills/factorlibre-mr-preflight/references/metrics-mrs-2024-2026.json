@@ -1,0 +1,48 @@
+{
+ "total_mrs": 607,
+ "estados": {
+  "opened": 26,
+  "merged": 549,
+  "closed": 32
+ },
+ "con_notas": 221,
+ "sin_notas": 386,
+ "notas_humanas": 1209,
+ "inline": 934,
+ "general": 275,
+ "fl_confirmados": {
+  "notas": 545,
+  "mrs": 126,
+  "inline": 434,
+  "general": 111,
+  "revisores": 16
+ },
+ "sin_dominio": {
+  "notas": 286,
+  "mrs": 84,
+  "inline": 219,
+  "general": 67,
+  "revisores": 19
+ },
+ "scalpers": {
+  "notas": 354,
+  "mrs": 127,
+  "inline": 257,
+  "general": 97,
+  "revisores": 9
+ },
+ "por_anio": {
+  "2024": {
+   "mrs": 64,
+   "con_notas": 21
+  },
+  "2025": {
+   "mrs": 313,
+   "con_notas": 100
+  },
+  "2026": {
+   "mrs": 230,
+   "con_notas": 100
+  }
+ }
+}

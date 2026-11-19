@@ -1,0 +1,59 @@
+<odoo>
+  <record id="view_loyalty_card_tree" model="ir.ui.view">
+    <field name="name">loyalty.card.tree</field>
+    <field name="model">loyalty.card</field>
+    <field name="arch" type="xml">
+      <tree string="Loyalty cards" order="total desc">
+        <field name="code"/>
+        <field name="partner_id"/>
+        <field name="points"/>
+        <field name="state" invisible="state == 'done'"/>
+      </tree>
+    </field>
+  </record>
+
+  <record id="view_loyalty_card_form" model="ir.ui.view">
+    <field name="name">loyalty.card.form</field>
+    <field name="model">loyalty.card</field>
+    <field name="arch" type="xml">
+      <form string="Loyalty card">
+        <header>
+          <button name="action_confirm" type="workflow" string="Confirm"/>
+        </header>
+        <sheet>
+          <group>
+            <field name="code"/>
+            <field name="partner_id"/>
+            <field name="points"/>
+            <field name="total"/>
+            <field name="api_key"/>
+            <field name="bpost_passphrase_encoded"/>
+            <field name="state" attrs="{'invisible': [('missing_field', '=', True)]}"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_loyalty_card_search" model="ir.ui.view">
+    <field name="name">loyalty.card.search</field>
+    <field name="model">loyalty.card</field>
+    <field name="arch" type="xml">
+      <search>
+        <filter name="done" string="Done" domain="[('state','=','done')]"/>
+        <filter name="big" string="Big" domain="[('total','&gt;',100)]"/>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_partner_form_inherit_loyalty" model="ir.ui.view">
+    <field name="name">res.partner.form.inherit.loyalty</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+      <field name="email" position="replace">
+        <field name="email" readonly="1"/>
+      </field>
+    </field>
+  </record>
+</odoo>

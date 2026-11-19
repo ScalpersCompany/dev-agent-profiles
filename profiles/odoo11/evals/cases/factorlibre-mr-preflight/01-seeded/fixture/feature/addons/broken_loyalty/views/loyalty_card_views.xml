@@ -1,0 +1,24 @@
+<odoo>
+  <record id="view_loyalty_card_tree" model="ir.ui.view">
+    <field name="name">loyalty.card.tree</field>
+    <field name="model">loyalty.card</field>
+    <field name="arch" type="xml">
+      <tree string="Loyalty cards">
+        <field name="code"/>
+        <field name="state" invisible="state == 'done'"/>
+      </tree>
+    </field>
+  </record>
+
+  <record id="view_loyalty_card_form" model="ir.ui.view">
+    <field name="name">loyalty.card.form</field>
+    <field name="model">loyalty.card</field>
+    <field name="inherit_id" ref="mail.mail_message_view_form"/>
+    <field name="arch" type="xml">
+      <field name="body" position="after">
+        <field name="state" attrs="{'invisible': [('missing_field', '=', True)]}"/>
+        <button name="action_debug" type="json" string="Debug"/>
+      </field>
+    </field>
+  </record>
+</odoo>

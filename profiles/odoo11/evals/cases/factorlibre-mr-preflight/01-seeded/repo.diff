@@ -1,0 +1,246 @@
+diff --git a/addons/broken_loyalty/__init__.py b/addons/broken_loyalty/__init__.py
+new file mode 100644
+index 0000000..72d3ea6
+--- /dev/null
++++ b/addons/broken_loyalty/__init__.py
+@@ -0,0 +1 @@
++from . import controllers, models
+diff --git a/addons/broken_loyalty/__manifest__.py b/addons/broken_loyalty/__manifest__.py
+new file mode 100644
+index 0000000..2ac7485
+--- /dev/null
++++ b/addons/broken_loyalty/__manifest__.py
+@@ -0,0 +1,16 @@
++{
++    'name': 'Broken Loyalty',
++    'version': '11.0.1.0.0',
++    'depends': ['base'],
++    'data': [
++        'views/loyalty_card_views.xml',
++        'security/ir.model.access.csv',
++        'data/loyalty_data.xml',
++    ],
++    'assets': {
++        'web.assets_backend': [
++            'broken_loyalty/static/src/js/loyalty.js',
++        ],
++    },
++    'application': True,
++}
+diff --git a/addons/broken_loyalty/controllers/__init__.py b/addons/broken_loyalty/controllers/__init__.py
+new file mode 100644
+index 0000000..12a7e52
+--- /dev/null
++++ b/addons/broken_loyalty/controllers/__init__.py
+@@ -0,0 +1 @@
++from . import main
+diff --git a/addons/broken_loyalty/controllers/main.py b/addons/broken_loyalty/controllers/main.py
+new file mode 100644
+index 0000000..43e832c
+--- /dev/null
++++ b/addons/broken_loyalty/controllers/main.py
+@@ -0,0 +1,9 @@
++from odoo import http
++from odoo.http import request
++
++
++class LoyaltyController(http.Controller):
++    @http.route('/loyalty/cards', type='http', auth='user')
++    def cards(self):
++        cards = request.env['loyalty.card'].sudo().search([])
++        return str(len(cards))
+diff --git a/addons/broken_loyalty/data/loyalty_data.xml b/addons/broken_loyalty/data/loyalty_data.xml
+new file mode 100644
+index 0000000..c589025
+--- /dev/null
++++ b/addons/broken_loyalty/data/loyalty_data.xml
+@@ -0,0 +1,7 @@
++<odoo>
++  <data>
++    <record id="loyalty_card_demo" model="loyalty.card">
++      <field name="code">DEMO</field>
++    </record>
++  </data>
++</odoo>
+diff --git a/addons/broken_loyalty/migrations/11.0.1.0.0/pre-migrate.py b/addons/broken_loyalty/migrations/11.0.1.0.0/pre-migrate.py
+new file mode 100644
+index 0000000..38abe25
+--- /dev/null
++++ b/addons/broken_loyalty/migrations/11.0.1.0.0/pre-migrate.py
+@@ -0,0 +1,2 @@
++def migrate(cr, version):
++    cr.execute("UPDATE loyalty_card SET points = 0")
+diff --git a/addons/broken_loyalty/models/__init__.py b/addons/broken_loyalty/models/__init__.py
+new file mode 100644
+index 0000000..9b2890d
+--- /dev/null
++++ b/addons/broken_loyalty/models/__init__.py
+@@ -0,0 +1 @@
++from . import loyalty_card, loyalty_line
+diff --git a/addons/broken_loyalty/models/loyalty_card.py b/addons/broken_loyalty/models/loyalty_card.py
+new file mode 100644
+index 0000000..0a29ab7
+--- /dev/null
++++ b/addons/broken_loyalty/models/loyalty_card.py
+@@ -0,0 +1,30 @@
++import pdb
++from datetime import datetime
++
++from odoo import api, fields, models
++from odoo.addons.mail.models import mail_thread  # noqa: F401
++
++
++class LoyaltyCard(models.Model):
++    _name = 'loyalty.card'
++
++    code = fields.Char(required=True)
++    points = fields.Integer()
++    total = fields.Float(compute='_compute_total')
++    state = fields.Selection([('draft', 'Draft'), ('done', 'Done')], default='draft')
++    api_key = fields.Char()
++    bpost_passphrase_encoded = fields.Char()
++
++    @api.one
++    def _compute_total(self):
++        for line in self.env['loyalty.line'].search([('card_id', '=', self.id)]):
++            self.total += line.points
++
++    def action_debug(self):
++        print('debug', self.id)
++        pdb.set_trace()
++        eval("1 + 1")
++        card_code = f"card-{self.id}"
++        self.env['res.partner'].search([])
++        self.env.cr.commit()
++        return datetime.now()
+diff --git a/addons/broken_loyalty/models/loyalty_card.py.bak b/addons/broken_loyalty/models/loyalty_card.py.bak
+new file mode 100644
+index 0000000..0a29ab7
+--- /dev/null
++++ b/addons/broken_loyalty/models/loyalty_card.py.bak
+@@ -0,0 +1,30 @@
++import pdb
++from datetime import datetime
++
++from odoo import api, fields, models
++from odoo.addons.mail.models import mail_thread  # noqa: F401
++
++
++class LoyaltyCard(models.Model):
++    _name = 'loyalty.card'
++
++    code = fields.Char(required=True)
++    points = fields.Integer()
++    total = fields.Float(compute='_compute_total')
++    state = fields.Selection([('draft', 'Draft'), ('done', 'Done')], default='draft')
++    api_key = fields.Char()
++    bpost_passphrase_encoded = fields.Char()
++
++    @api.one
++    def _compute_total(self):
++        for line in self.env['loyalty.line'].search([('card_id', '=', self.id)]):
++            self.total += line.points
++
++    def action_debug(self):
++        print('debug', self.id)
++        pdb.set_trace()
++        eval("1 + 1")
++        card_code = f"card-{self.id}"
++        self.env['res.partner'].search([])
++        self.env.cr.commit()
++        return datetime.now()
+diff --git a/addons/broken_loyalty/models/loyalty_line.py b/addons/broken_loyalty/models/loyalty_line.py
+new file mode 100644
+index 0000000..b4f0761
+--- /dev/null
++++ b/addons/broken_loyalty/models/loyalty_line.py
+@@ -0,0 +1,9 @@
++from odoo import fields, models
++
++
++class LoyaltyLine(models.Model):
++    _name = 'loyalty.line'
++    _description = 'Loyalty line'
++
++    card_id = fields.Many2one('loyalty.card')
++    points = fields.Integer()
+diff --git a/addons/broken_loyalty/security/ir.model.access.csv b/addons/broken_loyalty/security/ir.model.access.csv
+new file mode 100644
+index 0000000..50e9a93
+--- /dev/null
++++ b/addons/broken_loyalty/security/ir.model.access.csv
+@@ -0,0 +1,2 @@
++id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
++access_loyalty_card_user,loyalty.card.user,model_loyalty_card,base.group_user,1,0,0,0
+diff --git a/addons/broken_loyalty/static/src/js/loyalty.js b/addons/broken_loyalty/static/src/js/loyalty.js
+new file mode 100644
+index 0000000..e2338b0
+--- /dev/null
++++ b/addons/broken_loyalty/static/src/js/loyalty.js
+@@ -0,0 +1,16 @@
++odoo.define('broken_loyalty.loyalty', function (require) {
++    'use strict';
++    var Widget = require('web.Widget');
++    var Loyalty = Widget.extend({
++        start: function () {
++            console.log('start');
++            var value = this.getParent()?.value;
++            this.$el.off('click');
++            if (value != null) {
++                this.$el.text(value);
++            }
++            return this._super();
++        },
++    });
++    return Loyalty;
++});
+diff --git a/addons/broken_loyalty/tests/__init__.py b/addons/broken_loyalty/tests/__init__.py
+new file mode 100644
+index 0000000..463f191
+--- /dev/null
++++ b/addons/broken_loyalty/tests/__init__.py
+@@ -0,0 +1 @@
++# from . import test_loyalty
+diff --git a/addons/broken_loyalty/tests/test_loyalty.py b/addons/broken_loyalty/tests/test_loyalty.py
+new file mode 100644
+index 0000000..9b2363d
+--- /dev/null
++++ b/addons/broken_loyalty/tests/test_loyalty.py
+@@ -0,0 +1,7 @@
++from odoo.tests.common import TransactionCase
++
++
++class TestLoyalty(TransactionCase):
++    def test_code(self):
++        card = self.env['loyalty.card'].create({'code': 'T1'})
++        self.assertEqual(card.code, 'T1')
+diff --git a/addons/broken_loyalty/views/loyalty_card_views.xml b/addons/broken_loyalty/views/loyalty_card_views.xml
+new file mode 100644
+index 0000000..89f4769
+--- /dev/null
++++ b/addons/broken_loyalty/views/loyalty_card_views.xml
+@@ -0,0 +1,24 @@
++<odoo>
++  <record id="view_loyalty_card_tree" model="ir.ui.view">
++    <field name="name">loyalty.card.tree</field>
++    <field name="model">loyalty.card</field>
++    <field name="arch" type="xml">
++      <tree string="Loyalty cards">
++        <field name="code"/>
++        <field name="state" invisible="state == 'done'"/>
++      </tree>
++    </field>
++  </record>
++
++  <record id="view_loyalty_card_form" model="ir.ui.view">
++    <field name="name">loyalty.card.form</field>
++    <field name="model">loyalty.card</field>
++    <field name="inherit_id" ref="mail.mail_message_view_form"/>
++    <field name="arch" type="xml">
++      <field name="body" position="after">
++        <field name="state" attrs="{'invisible': [('missing_field', '=', True)]}"/>
++        <button name="action_debug" type="json" string="Debug"/>
++      </field>
++    </field>
++  </record>
++</odoo>

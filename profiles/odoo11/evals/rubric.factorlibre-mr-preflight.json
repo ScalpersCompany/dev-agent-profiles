@@ -1,0 +1,39 @@
+{
+  "skill": "factorlibre-mr-preflight",
+  "model": "REPLACE_WITH_APPROVED_MODEL",
+  "judge_model": "REPLACE_WITH_APPROVED_JUDGE_MODEL",
+  "k": 3,
+  "threshold": 8.5,
+  "criteria": [
+    {
+      "id": "preflight_errors",
+      "text": "Runs preflight_mr.py and reports all six ERROR rules with file:line: apiOne, debugger, evalExec, testDesactivado, invisibleExpresion and tipoJson.",
+      "weight": 3
+    },
+    {
+      "id": "preflight_warnings",
+      "text": "Reports the preflight WARNs with file:line: commitGenerico, readmeAusente, sudoEnController, searchSinDominio, migracionEnVersionInicial, printEnCodigo, fString, datetimeNow, ficheroTemporal, debugJs/consoleLog, optionalChaining, offSinHandler and nullCheck.",
+      "weight": 2
+    },
+    {
+      "id": "skill_blockers",
+      "text": "Adds the checklist findings the script does not cover: missing ACL for loyalty.line, missing mail in depends (preflight only INFO), cr.commit(), sudo() without justification, attrs reference to missing_field, assets in the manifest, missing _description/help, a migration UPDATE/DELETE without WHERE or limit, and the disabled test.",
+      "weight": 3
+    },
+    {
+      "id": "security_fields",
+      "text": "Reports api_key and bpost_passphrase_encoded as readable by base.group_user because they have no groups=, with file:line and the ACL that grants read.",
+      "weight": 2
+    },
+    {
+      "id": "format",
+      "text": "Header with branch/HEAD/tier/files/lines, severities and path:line per finding, the preflight summary and exit code, and the QUE/PRUEBA/RIESGO/QUEDA block.",
+      "weight": 2
+    },
+    {
+      "id": "no_false",
+      "text": "Does not report model= attributes as xmlidDeOtroModulo, does not call the controller type='http' invalid, does not recommend v12 APIs, and does not claim to have changed the repo.",
+      "weight": 2
+    }
+  ]
+}

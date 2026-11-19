@@ -1,0 +1,4 @@
+# Files where sudo() is accepted. One glob per line, relative to the repo root.
+# Keep this list short and justify every entry in the PR.
+# Example:
+# addons/base_access/models/res_partner.py

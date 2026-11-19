@@ -1,0 +1,49 @@
+{
+  "skill": "odoo-11-code-review",
+  "model": "REPLACE_WITH_APPROVED_MODEL",
+  "judge_model": "REPLACE_WITH_APPROVED_JUDGE_MODEL",
+  "k": 3,
+  "threshold": 8.5,
+  "criteria": [
+    {
+      "id": "security",
+      "text": "Flags the missing ACL for loyalty.card, the ungrouped api_key and bpost_passphrase_encoded fields, the unjustified sudo(), the cr.commit(), the raw SQL DELETE and the print(), each with file:line.",
+      "weight": 3
+    },
+    {
+      "id": "model",
+      "text": "Flags the missing _description, the @api.one use, the non-stored total used in order/filter, the missing _sql_constraints on code and the missing ondelete on partner_id, with file:line.",
+      "weight": 3
+    },
+    {
+      "id": "views",
+      "text": "Flags the invisible= expression in the tree, the attrs reference to missing_field, the type=workflow button and the position=replace on the core partner email, with file:line.",
+      "weight": 3
+    },
+    {
+      "id": "performance",
+      "text": "Flags the search inside a loop (N+1) in _compute_total and action_confirm.",
+      "weight": 2
+    },
+    {
+      "id": "manifest_data",
+      "text": "Flags assets in the manifest with a missing JS file, the data record without noupdate=1, the commented test import and the missing README.rst.",
+      "weight": 2
+    },
+    {
+      "id": "docs_help",
+      "text": "Flags the fields without help= (code, points, total, state, api_key, bpost_passphrase_encoded).",
+      "weight": 2
+    },
+    {
+      "id": "format",
+      "text": "Every finding cites file:line and a severity; the report ends with the QUE/PRUEBA/RIESGO/QUEDA block.",
+      "weight": 1
+    },
+    {
+      "id": "no_false",
+      "text": "Does not invent defects that are not in the module (for example, it does not claim __openerp__.py, v12 APIs, or a missing file that exists).",
+      "weight": 2
+    }
+  ]
+}

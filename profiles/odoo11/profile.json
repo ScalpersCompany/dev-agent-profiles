@@ -1,0 +1,12 @@
+{
+  "name": "odoo11",
+  "version": "1.0.0",
+  "api": 1,
+  "language": "python",
+  "description": "Odoo 11 modules, XML views, security and the FactorLibre MR preflight",
+  "guard": ["guard/odoo.sh"],
+  "verify": "verify/config.env.example",
+  "skills": "skills",
+  "evals": "evals/cases",
+  "agents": "AGENTS.fragment.md"
+}

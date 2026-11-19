@@ -1,0 +1,7 @@
+<odoo>
+  <data>
+    <record id="loyalty_card_demo" model="loyalty.card">
+      <field name="code">DEMO</field>
+    </record>
+  </data>
+</odoo>
