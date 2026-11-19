@@ -13,8 +13,8 @@ jobs:
         with:
           python-version: "3.11"
       - name: Unit tests
-        run: python3 -m unittest discover -s tests -v
+        run: python3 -m unittest discover -s profiles/odoo11/tests -v
       - name: Shell syntax
-        run: bash -n guard/odoo.sh
+        run: bash -n profiles/odoo11/guard/odoo.sh
       - name: Python syntax
-        run: python3 -m py_compile guard/odoo_lint.py
+        run: python3 -m py_compile profiles/odoo11/guard/odoo_lint.py
