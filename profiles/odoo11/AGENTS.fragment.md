@@ -1,5 +1,6 @@
 ## Odoo 11 profile rules
 
+- The company norm is `ScalpersCompany/scalpers-tech-doc/AGENTS.md`; this fragment only adds Odoo rules. If they conflict, the company norm wins.
 - Target Odoo 11 only: v11 ORM, Python 2/3-compatible code, no OWL and no v12+ APIs.
 - `sudo()` only in the paths listed in `guard/odoo_allowlist.txt`, with a test that proves the access rule.
 - No `cr.commit()` in business code; the framework owns the transaction.

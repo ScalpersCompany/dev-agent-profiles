@@ -30,6 +30,12 @@ Odoo docs. It never touches production and never uses the shared `scalpers` data
 `rsc-harness`: the ASDD/SDD workflow and its repo-local `.rsc/skills` are a different layer.
 If a repo does not use that workflow, the Odoo profile works without rsc-harness.
 
+## Company norm
+
+The Odoo profile declares `PROFILE_NORM_REPO` and `PROFILE_NORM_PATH` for
+`scalpers-tech-doc`; run `scripts/check-techdoc.sh` in the core. The company norm wins;
+this profile only adds Odoo rules.
+
 ## Status
 
 The repository is local; the private remote is pending. The `dev-agent init` installer and

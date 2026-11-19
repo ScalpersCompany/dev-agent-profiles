@@ -52,6 +52,13 @@ not replace rsc-harness. rsc-harness is the process/spec/ASDD layer. If the repo
 uses it, its skills stay in `.rsc/skills` and this profile does not copy them. If
 the repo does not use that workflow, this profile works without rsc-harness.
 
+## Company norm
+
+The company norm is `ScalpersCompany/scalpers-tech-doc/AGENTS.md`; the profile
+declares `PROFILE_NORM_REPO` and `PROFILE_NORM_PATH` and the core
+`scripts/check-techdoc.sh` verifies the clone. The company norm wins; this
+profile only adds Odoo rules.
+
 ## Agent skills
 
 - SDD is the `spec-driven-development` skill, installed globally in the agent.
