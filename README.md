@@ -15,7 +15,7 @@ content; it does not replace `guard`, `verify` or the hooks.
 | `ScalpersCompany/dev-agent-kit` | core contract, gate, hooks and template |
 | `ScalpersCompany/dev-agent-profiles` | this repository: Odoo 11 and PHP profiles |
 | `ScalpersCompany/scalpers-tech-doc` | company norm and documentation; canonical `AGENTS.md`, linked at `~/.agents/AGENTS.md`; checked by the core `scripts/check-techdoc.sh` |
-| `scalpers-v11` | product code in GitLab; receives the active profile, not a copy of the norm |
+| Your development repository | product code in Odoo, PHP or any stack; receives the kit and the active profile at its root, not a copy of the norm |
 
 They are separate repositories, not submodules. The Odoo profile declares
 `PROFILE_NORM_REPO` and `PROFILE_NORM_PATH`; it never copies the company norm.

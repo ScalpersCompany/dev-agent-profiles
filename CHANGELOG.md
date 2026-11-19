@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.0] - 2026-11-19
+
+### Changed
+
+- Related repositories no longer name a fixed product repository; the target is the repository where development happens, whatever the stack, with the kit and the active profile at its root.
+
 ## [1.3.0] - 2026-11-19
 
 ### Added
