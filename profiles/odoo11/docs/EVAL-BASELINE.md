@@ -151,7 +151,7 @@ python3 evals/harness.py \
 | `repro-first` | `evals/cases/repro-first/01-discount-bug` | 10.0/10, K=3 |
 | `review-diff` | `evals/cases/review-diff/01-unsafe-handler` | 9.64/10, K=3 |
 | `correct`, `odoo-safe-change`, `query-readonly` | none | installed; no real run |
-| `odoo-11-standards`, `odoo-11-orm-performance`, `odoo-11-credential-security`, `odoo-11-reservas-marketplace`, `sga-e2e-testing`, `gitlab`, `jira-cloud`, `rsc-harness-brain`, `gentle-ai-toolchain`, `odoo-development` | none | installed; no real run |
+| `odoo-11-standards`, `odoo-11-orm-performance`, `odoo-11-credential-security`, `odoo-11-reservas-marketplace`, `sga-e2e-testing`, `gitlab`, `jira-cloud`, `gentle-ai-toolchain`, `odoo-development` | none | installed; no real run |
 
 Only the five listed above have a real score. The rest are installed globally, but they are not
 claimed as verified; a case is the next step for each one that matters.

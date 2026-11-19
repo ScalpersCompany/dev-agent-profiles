@@ -32,7 +32,6 @@ is the project scope, not a claim that every skill has been evaluated.
 | P1 | `odoo-11-standards` | yes | yes | installed; no case yet |
 | P1 | `odoo-development` | yes | yes | installed; no case yet |
 | P1 | `requesting-code-review` | yes | yes | installed; no case yet |
-| P1 | `rsc-harness-brain` | yes | yes | installed; no case yet |
 | P1 | `sga-e2e-testing` | yes | yes | installed; no case yet |
 | P1 | `systematic-debugging` | yes | yes | installed; no case yet |
 | P1 | `test-driven-development` | yes | yes | installed; no case yet |

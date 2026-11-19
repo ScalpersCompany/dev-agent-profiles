@@ -170,7 +170,7 @@ Probado en local (Linux, 18-11): `bash -n` en los cuatro scripts, `py_compile` e
 ## Qué no hacer en Scalpers
 
 1. **No instalar `rsc-harness` en el repo de trabajo.** Escribe `01-TOOLS/`, `02-DOCS/`, el directorio de configuración de tu agente y `.rsc.json` dentro del repo. Si lo quieres probar, en un sandbox y con esos paths en `.gitignore`.
-2. **No apuntar `rsc-brain` al NAS de casa.** En ese PC, local o nada. El código de Scalpers no viaja a tu infraestructura.
+2. **No apuntar la memoria a la infraestructura de casa.** En ese PC, local o nada. El código de Scalpers no viaja a tu infraestructura.
 3. **No usar tu clave personal de OpenCode Go** para código de la empresa. Proveedor aprobado o modelo local.
 4. **No copiar las cien skills de Hermes.** Seis aquí, cada una con su examen.
 5. **No poner GGA como única puerta.** Es juicio, no mecanismo. Advisory en commit, bloqueante solo en CI y solo para `BLOCKER` y `CRITICAL`.
