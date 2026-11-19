@@ -8,6 +8,18 @@ Environment profiles for `dev-agent-kit`. One directory per environment:
 The core keeps the contract, the gate and the hooks. A profile supplies the language
 content; it does not replace `guard`, `verify` or the hooks.
 
+## Related repositories
+
+| Repository | Role |
+|---|---|
+| `ScalpersCompany/dev-agent-kit` | core contract, gate, hooks and template |
+| `ScalpersCompany/dev-agent-profiles` | this repository: Odoo 11 and PHP profiles |
+| `ScalpersCompany/scalpers-tech-doc` | company norm and documentation; canonical `AGENTS.md`, linked at `~/.agents/AGENTS.md`; checked by the core `scripts/check-techdoc.sh` |
+| `scalpers-v11` | product code in GitLab; receives the active profile, not a copy of the norm |
+
+They are separate repositories, not submodules. The Odoo profile declares
+`PROFILE_NORM_REPO` and `PROFILE_NORM_PATH`; it never copies the company norm.
+
 New profiles start from the core template: `dev-agent-kit/profiles/_template`, generated
 with `scripts/new-profile.sh` and checked with `scripts/validate-profile.py`. The guide is
 `dev-agent-kit/docs/CREAR-PERFIL.md`.

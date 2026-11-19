@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.0] - 2026-11-19
+
+### Added
+
+- Related-repositories table with the core, this profiles repo, `scalpers-tech-doc` and the product repo; the company norm is referenced, never copied.
+
 ## [1.2.0] - 2026-11-19
 
 ### Changed
