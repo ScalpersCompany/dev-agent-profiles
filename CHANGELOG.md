@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0] - 2026-11-19
+
+### Changed
+
+- Published as `ScalpersCompany/dev-agent-profiles` (public); the README and the Odoo profile point to the company repository and the company norm.
+
 ## [1.0.0] - 2026-11-19
 
 ### Added

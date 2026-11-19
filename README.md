@@ -1,6 +1,6 @@
 # Profiles
 
-Private environment profiles for `dev-agent-kit`. One directory per environment:
+Environment profiles for `dev-agent-kit`. One directory per environment:
 
 - `profiles/odoo11`: Odoo 11 guard, verify, skills, evals and docs.
 - `profiles/php`: PHP skeleton; PHPStan, PHPCS and PHPUnit are the next step.
@@ -38,5 +38,4 @@ this profile only adds Odoo rules.
 
 ## Status
 
-The repository is local; the private remote is pending. The `dev-agent init` installer and
-the lock file are designed but not wired.
+The repository is public at `https://github.com/ScalpersCompany/dev-agent-profiles`; the `dev-agent init` installer and the lock file are designed but not wired.
