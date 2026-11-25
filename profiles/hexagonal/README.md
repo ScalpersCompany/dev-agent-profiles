@@ -35,7 +35,8 @@ printf 'DEV_AGENT_PROFILE=hexagonal\n' > /path/to/repo/.dev-agent/config
 ```
 
 Fill `verify/config.env` from the example. The core `guard/guard.sh` runs the profile guard;
-the core `verify/run.sh` runs the configured test command.
+the core `verify/run.sh` runs the configured test command and `E2E_CMD`, and keeps the
+report and traces under `evidence/<run-id>/e2e/`.
 
 Copy the skill directory to the agent's skills path or install it with `gentle-ai`. The core
 generic skills are not copied here.

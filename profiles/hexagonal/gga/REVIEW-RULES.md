@@ -90,6 +90,9 @@ separate module; it never becomes a service folder or a shared transaction.
   the change.
 - A contract, API, E2E or concurrency test missing for a new endpoint, event, side effect,
   idempotency key or error path.
+- The complete E2E suite did not run through `E2E_CMD` (API and compose), or it did not
+  leave the command, exit code, SHA and report under `evidence/<run-id>/e2e/`. A single
+  health request is not E2E.
 - A test that passes locally only because a service, table or fixture exists in the local
   compose but not in the pipeline's clean environment.
 - A success claim without the command, exit code, commit SHA and output or artifact path

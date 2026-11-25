@@ -1,6 +1,6 @@
 {
   "name": "php",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "api": 1,
   "language": "php",
   "description": "PHP 8 profile skeleton with PHPStan, PHPCS and PHPUnit",

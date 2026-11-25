@@ -187,6 +187,13 @@ repository. The company rule and the core rules still apply.
   without the pipeline green for the same commit is not evidence.
 - A test that is green only because the local database has demo data, the module closure
   is incomplete or `--test-enable` was not used.
+- A website, portal, SGA or back-office flow changed without a browser E2E spec that logs
+  in with a test user, reaches the page through the public route and asserts the visible or
+  persisted result. Use Playwright or an Odoo tour only if the profile installs it; the
+  evidence is the command, `0`, SHA, HTML/JSON report and trace or screenshot under
+  `evidence/<run-id>/e2e/`.
+- An E2E that runs against production, a shared database or a fixture that another team
+  can change during the test.
 
 ### Known failure patterns from real MRs
 

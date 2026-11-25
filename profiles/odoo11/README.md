@@ -28,7 +28,8 @@ tests/test_odoo_lint.py      unit tests for the linter
 Copy this directory to the target repo as `.dev-agent/profiles/odoo11` or keep it
 under `profiles/odoo11`. The core `guard/guard.sh` reads `.dev-agent/config`
 (`DEV_AGENT_PROFILE=odoo11`) and runs `guard/odoo.sh`; it no longer contains Odoo
-checks itself.
+checks itself. The core `verify/run.sh` runs `E2E_CMD` and keeps the Playwright report and
+traces under `evidence/<run-id>/e2e/`; use it for website, portal, SGA or back-office flows.
 
 ```bash
 cp -a profiles/odoo11 /path/to/repo/.dev-agent/profiles/odoo11

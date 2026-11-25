@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.0] - 2026-11-25
+
+### Added
+
+- Complete E2E evidence in the Odoo 11, PHP 8 and hexagonal GGA rules: public entry point, real application, Playwright/API report, JUnit/JSON, traces and screenshots under `evidence/<run-id>/e2e/`.
+- `E2E_CMD`, `E2E_BASE_URL` and `E2E_HEALTH_PATH` in the profile `verify/config.env.example` files.
+- Profile READMEs state that `verify/run.sh` runs the E2E suite and keeps the artifacts.
+
+### Changed
+
+- A smoke probe is not complete E2E; a UI or user-flow change without the suite is blocking.
+
 ## [1.7.0] - 2026-11-25
 
 ### Added

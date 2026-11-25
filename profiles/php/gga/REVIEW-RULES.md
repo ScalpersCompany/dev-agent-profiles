@@ -45,6 +45,24 @@ gates below are mandatory; a missing tool is `ENV-FAIL`, not a pass.
 - A `catch` that swallows an exception, catches `Throwable` and continues, or logs and
   returns a success value without a test for the failure path.
 
+### End-to-end evidence
+
+- A browser, UI or user-flow change without an E2E spec that starts at the public entry
+  point, exercises the real application and asserts the visible or persisted outcome. The
+  smoke probe is not E2E.
+- The E2E command did not run, exited non-zero, skipped or deselected the flow, or produced
+  no evidence for the head commit.
+- Evidence for a browser flow must include the command, exit code `0`, commit SHA and the
+  Playwright HTML report, JUnit/JSON results, and the trace, screenshot or video for a
+  failure. The files belong under `evidence/<run-id>/e2e/`; a screenshot pasted elsewhere
+  is not the evidence set.
+- `E2E_BASE_URL` points at production, a shared environment or a database that is not
+  disposable. The suite must be able to create and clean its own data.
+- A test that mocks the application under test, calls only an internal endpoint or asserts
+  that a request was made instead of the user-visible result.
+- A green E2E run for an older commit, a local run without the same commit SHA, or a run
+  whose artifacts were not retained.
+
 ### Security
 
 - SQL built by concatenating or interpolating request data; a query without prepared

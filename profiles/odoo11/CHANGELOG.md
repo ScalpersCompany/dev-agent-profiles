@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0] - 2026-11-25
+
+### Added
+
+- Complete E2E evidence in the Odoo GGA rules: Playwright or Odoo tour for website, portal, SGA and back-office flows, with command, SHA, report, trace and screenshot under `evidence/<run-id>/e2e/`.
+- `E2E_CMD`, `E2E_BASE_URL` and `E2E_HEALTH_PATH` in the verify example.
+
 ## [1.1.0] - 2026-11-25
 
 ### Added

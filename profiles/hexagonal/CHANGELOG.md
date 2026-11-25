@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0] - 2026-11-25
+
+### Añadido
+
+- E2E completo en las reglas GGA del microservicio: `E2E_CMD` sobre API y compose, con
+  comando, SHA, informe y artefactos en `evidence/<run-id>/e2e/`.
+- `E2E_CMD`, `E2E_BASE_URL` y `E2E_HEALTH_PATH` en el ejemplo de verify.
+
 ## [1.2.0] - 2026-11-25
 
 ### Añadido

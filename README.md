@@ -13,6 +13,11 @@ content; it does not replace `guard`, `verify` or the hooks. Each profile also o
 rules are appended when the review is installed. Odoo rules never leak into PHP, hexagonal
 or a future profile.
 
+The core also ships the `e2e/` Playwright baseline. `verify/run.sh` runs it through
+`E2E_CMD`, keeps the HTML report, JUnit/JSON, traces and screenshots under
+`evidence/<run-id>/e2e/`, and fails when the configured suite fails. A profile supplies the
+real user flows and the disposable environment; the baseline is not a substitute for them.
+
 ## Related repositories
 
 | Repository | Role |
