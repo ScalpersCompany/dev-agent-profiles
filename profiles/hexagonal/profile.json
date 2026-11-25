@@ -1,10 +1,12 @@
 {
   "name": "hexagonal",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "api": 1,
   "language": "python",
   "description": "Scalpers hexagonal microservices: contract-first, ports and adapters, idempotency and Docker",
-  "guard": ["guard/hexagonal.sh"],
+  "guard": [
+    "guard/hexagonal.sh"
+  ],
   "verify": "verify/config.env.example",
   "skills": "skills",
   "evals": "evals/cases",

@@ -8,17 +8,20 @@
 - [ ] Puertos necesarios identificados; ningún tipo de framework en ellos.
 - [ ] Riesgo evaluado: datos, seguridad, contratos, concurrencia, entrega o tests.
 - [ ] Layout decidido: piloto en un repo con `services/<nombre>/`; plataforma separada.
+- [ ] El servicio no contiene reglas de un dominio, producto o sistema llamante concreto.
 
 ## Dominio
 
 - [ ] `domain/` solo importa biblioteca estándar y módulos de dominio.
-- [ ] Entidades y value objects con unidades explícitas (kg, cm, EUR, UTC).
-- [ ] Dinero con `Decimal`, no `float`.
+- [ ] Entidades y value objects con unidades explícitas (moneda, tiempo, cantidad).
+- [ ] Si hay importes, dinero con `Decimal`, no `float`.
 - [ ] Estados normalizados y traducción del proveedor en su adaptador.
 - [ ] Errores de dominio sin HTTP, sin JSON y con datos útiles.
 - [ ] `domain/ports.py` solo usa tipos de dominio.
 
 ## Aplicación e idempotencia
+
+Si el servicio tiene efectos o llamadas salientes:
 
 - [ ] DTO estricto (`extra="forbid"`) y mapeo explícito a dominio.
 - [ ] Un caso de uso por acción; puertos por constructor.
@@ -28,22 +31,22 @@
 - [ ] Carreras de unicidad capturadas y traducidas a replay/409, nunca a 500.
 - [ ] Reintento de `failed` con `UPDATE ... WHERE lifecycle='failed'`.
 
-## API y contrato
+## Límite y contrato
 
 - [ ] JSON Schema/OpenAPI validados y copiados sin deriva.
-- [ ] Errores `problem+json` con `code` estable.
-- [ ] 4xx de validación, 401 sin clave, 403 sin permiso, 404, 409 y 502 según tabla.
-- [ ] 502 sin detalles crudos del proveedor; causa en logs.
-- [ ] `Idempotency-Key` coherente con `request_id` si se acepta.
-- [ ] OpenAPI declara todos los endpoints que existen y ninguno que no exista.
+- [ ] Errores con `code` estable y sin detalles crudos del proveedor.
+- [ ] Si el límite es HTTP: 4xx de validación, 401 sin clave, 403 sin permiso, 404, 409 y 502 según tabla; `Idempotency-Key` coherente con `request_id` si se acepta.
+- [ ] OpenAPI declara todos los endpoints que existen y ninguno que no exista, si aplica.
 
 ## Persistencia y artefactos
+
+Si el servicio almacena estado:
 
 - [ ] Migraciones SQL versionadas e idempotentes.
 - [ ] Conexiones cerradas explícitamente.
 - [ ] Restricciones únicas que protegen la idempotencia y la referencia activa.
-- [ ] Sin `default` en campos nuevos de tablas grandes.
-- [ ] Sin `search([])` ni `UPDATE` masivo en rutas de petición.
+- [ ] Sin defaults/backfills que puedan reescribir tablas grandes; nullable o backfill explícito.
+- [ ] Sin escaneos ni actualizaciones de tabla completa en rutas de petición.
 - [ ] Artefactos con escritura atómica, nombre validado, ruta contenida y sha256.
 
 ## Configuración y secretos
@@ -51,7 +54,7 @@
 - [ ] `${VAR}` resueltas del entorno y fail-fast al arrancar.
 - [ ] Credenciales fuera del repo, de logs y de respuestas.
 - [ ] Consumidores con permisos y entornos; seed reconcilia y deshabilita retirados.
-- [ ] Campos sensibles con grupo de sistema y ACL.
+- [ ] Campos sensibles con control de acceso del sistema.
 
 ## Pruebas
 
@@ -60,30 +63,25 @@
 - [ ] Contrato: ejemplos y esquemas; copia byte a byte.
 - [ ] Adaptadores con respuestas grabadas, sin red.
 - [ ] API: auth, permisos, errores, replay, cancelación.
-- [ ] Concurrencia: dos POST con el mismo `request_id`.
-- [ ] Timeout tras enviar y fallo de guardado posterior.
-- [ ] Path traversal y nombres duplicados.
 - [ ] E2E del flujo completo; evidencia de comando y salida.
-- [ ] Cobertura ≥85 % y dominio ≥90 %.
+- [ ] Cobertura: la que fije el proyecto.
+- [ ] Si el servicio tiene efectos o llamadas salientes: concurrencia con el mismo `request_id`, timeout tras enviar y replay tras una transición.
+- [ ] Si genera artefactos: path traversal y nombres duplicados.
+- [ ] Si es de solo lectura: no exige `pending` ni `outcome_unknown`; contrato y tests sí.
 
-## Puente Odoo
+## Integración con sistemas existentes
 
-- [ ] Módulo separado en `scalpers-v11`, con README, CHANGELOG e icono.
-- [ ] `request_id` determinista confirmado en cursor independiente antes del HTTP.
-- [ ] Resultado escrito también en cursor auxiliar; no se actualiza la misma fila en la
-  transacción principal.
-- [ ] `service_attempt` solo avanza tras rechazo o cancelación.
-- [ ] `outcome_unknown` bloquea la regeneración.
-- [ ] Campos nuevos con `help`; sin `default` en tablas grandes.
-- [ ] Vistas existentes sin referencias a campos inexistentes.
-- [ ] Tests de mapeo y de idempotencia; instalación en base desechable.
-- [ ] El módulo no conoce transportistas concretos.
+- [ ] El adaptador del sistema existente está separado del dominio y no comparte tablas ni
+  transacciones con el servicio.
+- [ ] Si hay integración o efectos: `request_id` persistido y confirmado antes de la llamada, aunque el sistema llamante falle.
+- [ ] Integración gradual con feature flag y comparación de resultados, si aplica.
+- [ ] El sistema existente solo conoce el contrato; no detalles internos del servicio.
+- [ ] Sin reglas de un dominio, producto o sistema concreto en la base del servicio.
 
 ## Entrega
 
-- [ ] `CHANGELOG.md` actualizado en el mismo commit.
-- [ ] README con caso de uso, configuración y pruebas.
-- [ ] Riesgo declarado (`Risk: item N` o `Risk: none`).
-- [ ] Commits convencionales, firmados y sin atribución a IA.
+- [ ] `CHANGELOG.md` y README actualizados en el mismo commit.
+- [ ] Se cumplen la norma de empresa y su checklist de entrega (`~/.agents/AGENTS.md`): commits,
+  evidencia, producción y cambio destructivo.
+- [ ] Riesgo declarado según el flujo de trabajo.
 - [ ] `git status` limpio y rama/MR correctos.
-- [ ] Producción no tocada sin autorización explícita.

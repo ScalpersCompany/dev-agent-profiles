@@ -1,6 +1,6 @@
 # Árbol objetivo del piloto
 
-Un repo, varios servicios en carpetas, un compose raíz. El módulo de Odoo no vive aquí.
+Un repo, varios servicios en carpetas, un compose raíz. El sistema llamante no vive aquí.
 
 ```
 piloto/
@@ -9,19 +9,19 @@ piloto/
 ├── Makefile
 ├── .env.example
 ├── contracts/
-│   ├── shipment-request.schema.json
-│   ├── shipment-response.schema.json
+│   ├── order-request.schema.json
+│   ├── order-response.schema.json
 │   └── openapi.yaml
 ├── config/
-│   ├── carriers/
+│   ├── providers/
 │   └── consumers.yaml
 ├── services/
-│   ├── transport-api/
+│   ├── orders-api/
 │   │   ├── Dockerfile
 │   │   ├── pyproject.toml
-│   │   ├── src/transport/
+│   │   ├── src/orders/
 │   │   └── tests/
-│   ├── carrier-mock/
+│   ├── notification-worker/
 │   │   ├── Dockerfile
 │   │   ├── pyproject.toml
 │   │   └── src/
@@ -36,13 +36,13 @@ piloto/
 ## Compose raíz
 
 ```yaml
-name: transporte-piloto
+name: platform-pilot
 services:
-  transport-api:
+  orders-api:
     build:
       context: .
       dockerfile: Dockerfile
-      target: transport-api
+      target: orders-api
     env_file: .env
     ports:
       - "8080:8080"
@@ -50,11 +50,11 @@ services:
       - ./config:/app/config:ro
       - ./contracts:/app/contracts:ro
       - ./var:/app/var
-  carrier-mock:
+  notification-worker:
     build:
       context: .
       dockerfile: Dockerfile
-      target: carrier-mock
+      target: notification-worker
     env_file: .env
 ```
 
@@ -68,21 +68,20 @@ WORKDIR /app
 COPY contracts /app/contracts
 COPY config /app/config
 
-FROM base AS transport-api
-COPY services/transport-api/pyproject.toml services/transport-api/uv.lock /app/
+FROM base AS orders-api
+COPY services/orders-api/pyproject.toml services/orders-api/uv.lock /app/
 RUN uv sync --frozen --no-dev
-COPY services/transport-api/src /app/src
+COPY services/orders-api/src /app/src
 ENV PYTHONPATH=/app/src
 EXPOSE 8080
-CMD ["uv", "run", "uvicorn", "transport.api.asgi:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uv", "run", "uvicorn", "orders.api.asgi:app", "--host", "0.0.0.0", "--port", "8080"]
 
-FROM base AS carrier-mock
-COPY services/carrier-mock/pyproject.toml services/carrier-mock/uv.lock /app/
+FROM base AS notification-worker
+COPY services/notification-worker/pyproject.toml services/notification-worker/uv.lock /app/
 RUN uv sync --frozen --no-dev
-COPY services/carrier-mock/src /app/src
+COPY services/notification-worker/src /app/src
 ENV PYTHONPATH=/app/src
-EXPOSE 8081
-CMD ["uv", "run", "uvicorn", "carrier_mock.main:app", "--host", "0.0.0.0", "--port", "8081"]
+CMD ["uv", "run", "python", "-m", "notification.main"]
 ```
 
 ## Makefile raíz
@@ -96,9 +95,9 @@ down:
 logs:
 	docker compose logs -f --tail=200
 test:
-	docker compose run --rm transport-api pytest
+	docker compose run --rm orders-api pytest
 e2e:
-	docker compose run --rm transport-api pytest tests/e2e
+	docker compose run --rm orders-api pytest tests/e2e
 ```
 
 ## Reglas
@@ -107,5 +106,5 @@ e2e:
   la imagen.
 - Cada servicio tiene su `pyproject.toml`, sus tests y su Dockerfile target.
 - Los tests E2E entre servicios viven en `tests/e2e/` del repo raíz.
-- El módulo de Odoo se queda en `scalpers-v11`; no se añade a este compose salvo que el piloto
-  levante un Odoo completo, y en ese caso se monta como addon, no como servicio del repo.
+- El sistema llamante (monolito, ERP, legacy) se integra por contrato y adaptador; no se añade como
+  servicio de este compose ni comparte su base de datos.

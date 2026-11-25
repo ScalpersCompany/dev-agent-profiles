@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.6.0] - 2026-11-25
+
+### Changed
+
+- Made the `hexagonal` profile domain-agnostic: removed product- and system-specific rules from
+  the AGENTS fragment, README, docs, checklist and skill.
+- The skill now describes integrations with existing systems as separate adapters or modules,
+  without naming a concrete system or its tables.
+- Generic service tree and compose examples.
+
 ## [1.5.0] - 2026-11-25
 
 ### Added

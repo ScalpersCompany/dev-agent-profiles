@@ -20,57 +20,21 @@ esta skill contradice esa base, gana la base documental.
 | Stack aprobado | Sí, como referencia | `development/tech-stack.md` |
 | Roles, estimación, DoR/DoD | No los redefine | Metodología y gestión de proyectos |
 
-## Reglas de la empresa que la skill hace suyas
+## Reglas que la skill no reescribe
 
-- Producción no se toca sin autorización explícita para esa acción concreta.
-- Nada se declara hecho sin evidencia: comando, test, `diff`, respuesta HTTP o fichero releído.
-- Todo desarrollo se prueba de extremo a extremo y demuestra que no rompe lo anterior.
-- Nada destructivo sin permiso; antes de borrar, renombrar a `.bak-<fecha>`.
-- Commits convencionales, firmados y sin atribución a IA ni `Co-Authored-By`.
-- Dos fallos del mismo intento implican cambio de enfoque o parada.
-- Documentación en español; código, identificadores y especificaciones de API en inglés.
-- Changelog obligatorio en el mismo commit que el cambio.
-- Sin comentarios de prosa en código nuevo o modificado; solo directivas y cabeceras legales.
+- La norma de empresa y la metodología mandan; esta skill no las copia ni las resume.
+- Los artefactos de producto (PRD, historias, roles, DoR/DoD, estimación) viven en la metodología.
+- GitFlow, tags, entornos, CI/CD, stack aprobado y estructura documental se consultan en la fuente;
+  la skill solo enlaza.
+- La excepción de piloto está en `AGENTS.fragment.md` y en esta referencia: un repo con
+  `services/<nombre>/` y compose raíz; los repos separados se aplican al pasar a plataforma.
+- Las integraciones con sistemas existentes son adaptadores o módulos separados; no son carpetas
+  de servicio ni comparten transacciones con el microservicio.
 
-## GitFlow y entornos
+## Cobertura y calidad
 
-- `main` es producción estable; `devel` integra evolutivos; `feature/*` nace de `main`;
-  `release/*` prepara versión; `hotfix/*` corrige producción.
-- Tags de integración `dev-YYYYMMDD`; versión `vX.Y.Z`; `demo-vX.Y.Z` y `prod-vX.Y.Z`.
-- CI/CD: dev automático desde `devel`/`dev-*`; staging automático desde `main`/`v*`; producción
-  manual con aprobación.
-- **Excepción de piloto acordada:** un solo repo con los microservicios en `services/<nombre>/` y
-  un compose raíz; no se crean `_doc`, `_test` ni `_infra` para el piloto. La separación por repos
-  de la metodología se aplica al pasar a plataforma.
-- El módulo puente de Odoo es un módulo Odoo en `scalpers-v11`; no es un servicio del repo del
-  piloto ni se mezcla con sus transacciones.
-
-## Documentación y contrato
-
-- Markdown MyST dentro de `source/content/`; todo fichero nuevo se declara en `index.rst` y
-  `myst.yml`.
-- Diagramas como código (PlantUML, Mermaid o Wavedrom); captura raster solo de un sistema real.
-- Plantillas de ADR, PRD y User Story: no se inventa estructura.
-- Sin duplicación: se enlaza la fuente.
-- El contrato del servicio es la fuente de verdad y se versiona con SemVer independiente; los
-  cambios incompatibles abren ventana de migración.
-
-## Calidad y stack
-
-- DDD, arquitectura hexagonal, SOLID, TDD y contract testing son el marco de implementación.
-- Cobertura y umbrales: los que fije el proyecto; el piloto de transporte usa 85 % global y 90 %
-  en dominio.
-- Stack backend aprobado: Python, uv, pytest, FastAPI, Pydantic, OpenTelemetry, PostgreSQL.
-- Observabilidad: Prometheus/Grafana/Loki/Tempo o Datadog; edge APISIX/Coraza/Traffic Server
-  cuando haya exposición; Keycloak/Casbin para usuarios y API key entre servicios.
-- Seguridad: secretos por entorno o vault, nunca en repositorio, logs ni respuestas.
-
-## Entrega
-
-- Un cambio, un commit; tests y documentación en el mismo commit que el comportamiento.
-- `CHANGELOG.md` con versión y fecha; README con caso de uso, configuración y pruebas.
-- Merge Request con pipeline en verde; producción con aprobación explícita.
-- Declarar el riesgo (`Risk: item N` o `Risk: none`) y las pruebas observadas.
+El proyecto fija sus umbrales. Si no hay decisión, la referencia es 85 % global y 90 % en dominio.
+La skill no sustituye el plan de pruebas del proyecto ni sus criterios de aceptación.
 
 ## Referencias locales
 

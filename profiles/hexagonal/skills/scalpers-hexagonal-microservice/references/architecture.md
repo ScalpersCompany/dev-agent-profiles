@@ -1,7 +1,8 @@
 # Arquitectura hexagonal para microservicios Scalpers
 
-Base extraída del piloto de transporte y generalizada para cualquier dominio. La regla de oro es
-siempre la misma: el dominio no sabe cómo se entra ni cómo se sale; los adaptadores lo conectan.
+Base para cualquier microservicio, independiente del dominio y del sistema que lo llame. La
+regla de oro es siempre la misma: el dominio no sabe cómo se entra ni cómo se sale; los
+adaptadores lo conectan.
 
 ## 1. Regla de dependencia
 
@@ -62,10 +63,12 @@ plataforma, cada componente puede separarse en su repositorio.
 - Entidades y value objects inmutables (`@dataclass(frozen=True, slots=True)`) cuando representan
   valores; entidades mutables solo si el ciclo de vida lo exige.
 - Dinero con `Decimal` y divisa ISO 4217 como cadena, nunca `float`.
-- Pesos en kg con `Decimal`; dimensiones en cm; conversiones y redondeos en el dominio.
+- Unidades explícitas: moneda, tiempo, cantidad; conversiones y redondeos en el dominio.
 - Estados normalizados en un `StrEnum`; los estados del proveedor se traducen en su adaptador.
-- Errores de dominio con atributos útiles (`provider_code`, `carrier_ref`), sin HTTP ni JSON.
+- Errores de dominio con atributos útiles (`provider_code`, `external_ref`), sin HTTP ni JSON.
 - Puertos como `Protocol` en `domain/ports.py`; sus tipos son de dominio, no de framework.
+- Prohibido en dominio: conocer la base de datos, la capa HTTP, el sistema llamante o el
+  formato de la API.
 
 ## 4. Aplicación
 
@@ -92,6 +95,9 @@ plataforma, cada componente puede separarse en su repositorio.
 
 ## 6. Idempotencia y ciclo de vida
 
+Aplica cuando el servicio tiene efectos o llamadas salientes. Un servicio de solo lectura no
+necesita `pending`, `outcome_unknown` ni claim previo.
+
 Estados internos: `pending`, `completed`, `failed`, `outcome_unknown`.
 
 1. Calcular el hash del cuerpo canónico (`json.dumps(..., sort_keys=True)`).
@@ -105,7 +111,7 @@ Estados internos: `pending`, `completed`, `failed`, `outcome_unknown`.
 3. Insertar la fila `pending` con restricción única `(consumer_id, request_id)` antes de llamar al
    proveedor. Capturar la violación de unicidad y releer; nunca devolver 500 por una carrera.
 4. Llamar al puerto.
-5. Guardar resultado/labels/eventos y pasar a `completed` en la misma transacción.
+5. Guardar resultado, artefactos y eventos, y pasar a `completed` en la misma transacción.
 
 Errores del proveedor:
 
@@ -119,11 +125,11 @@ Reglas de concurrencia:
 
 - La unicidad se resuelve con `INSERT` + captura de `IntegrityError` + relectura.
 - El reintento de `failed` es un `UPDATE ... WHERE lifecycle='failed'` y comprueba `rowcount`.
-- Un índice único parcial protege `(external_ref, carrier)` mientras la expedición está activa;
-  una cancelada libera la referencia.
-- No se hacen `UPDATE` masivos ni `search([])` en rutas de petición.
+- Un índice único parcial protege `(external_ref, provider)` mientras el recurso está activo; un
+  recurso cancelado libera la referencia.
+- No se hacen actualizaciones ni escaneos de tabla completa en rutas de petición.
 
-## 7. Persistencia
+## 7. Persistencia y artefactos
 
 - El repositorio es un puerto; SQLite para tests/local y PostgreSQL para entornos compartidos.
 - Migraciones SQL versionadas, idempotentes y ejecutadas al arrancar; nunca `ALTER` manual.
@@ -131,26 +137,26 @@ Reglas de concurrencia:
 - Transacciones cortas; el `complete` guarda cabecera, artefactos y evento juntos.
 - Reconstruir entidades desde el payload almacenado puede fallar con datos antiguos: degradar a
   una entidad mínima y registrar el aviso, no devolver 500.
-- En tablas enormes, añadir columnas nullable y sin `default`; un `default` dispara un `UPDATE` de
-  toda la tabla al instalar (ver lección de `stock.picking` con 45 M de filas).
-- Artefactos (etiquetas, PDFs): escritura atómica (`tmp` + `os.replace`), nombre validado, ruta
-  contenida en la raíz y sha256 verificado al servir.
+- En tablas grandes, añadir columnas nullable y evitar defaults o backfills que puedan reescribir
+  la tabla al migrar. Si hace falta un valor, backfill explícito y por lotes.
+- Artefactos (ficheros, documentos, imágenes si aplica): escritura atómica (`tmp` + `os.replace`),
+  nombre validado, ruta contenida en la raíz y sha256 verificado al servir.
 
 ## 8. Configuración y secretos
 
 - YAML por servicio/entorno con `${VAR}` resueltas del entorno; fail-fast al arrancar nombrando la
   variable que falta.
 - Credenciales solo por entorno o vault; nunca en el repositorio, en logs ni en la respuesta.
-- Campos sensibles con grupo de sistema y ACL; el hash de una API key no es la clave.
-- Consumidores con transportistas/recursos permitidos y entornos donde aplican; el seed reconcilia
-  y deshabilita los que desaparecen del YAML.
+- Campos sensibles con control de acceso del sistema; el hash de una API key no es la clave.
+- Consumidores con recursos permitidos y entornos donde aplican; el seed reconcilia y deshabilita
+  los que desaparecen del YAML.
 - Secretos en tests: fixtures locales, nunca valores reales.
 
 ## 9. Pruebas
 
 | Nivel | Qué cubre | Herramienta |
 |---|---|---|
-| Dominio | reglas, pesos, redondeos, estados, errores | pytest puro |
+| Dominio | reglas, unidades, redondeos, estados, errores | pytest puro |
 | Casos de uso | orquestación, idempotencia, errores | pytest + fakes de puertos |
 | Contrato | ejemplos y esquemas, copia sin deriva | jsonschema, openapi-spec-validator |
 | Adaptadores | mapeo y respuestas grabadas | pytest + MockTransport/cassettes |
@@ -160,9 +166,9 @@ Reglas de concurrencia:
 
 - Un test por regla observable; cubre salida, código y estado persistido.
 - Añade concurrencia (dos POST con el mismo `request_id`), timeout tras enviar, path traversal y
-  replay tras cancelar.
+  replay tras una transición de estado.
 - Los tests de adaptador no llaman al proveedor real; usan respuestas grabadas.
-- Cobertura mínima 85 %; el dominio por encima del 90 %.
+- Cobertura: la que fije el proyecto; esta base no impone cifras.
 - Evidencia: comando, salida y fichero generado; no se declara verde sin `Ran N tests` o `passed`.
 
 ## 10. Repositorio y despliegue
@@ -172,8 +178,6 @@ Reglas de concurrencia:
   `scripts/`, `docs/` y `ops/`. Un `docker compose up` levanta todo.
 - **Plataforma:** se aplica la separación de la metodología (`_doc`, `_test`, `_infra`, componentes)
   cuando el servicio deja de ser piloto.
-- El módulo puente de Odoo es un módulo Odoo en `scalpers-v11`, con su rama y su pipeline; no es
-  una carpeta de servicio ni se mezcla con el repo del piloto.
 - CI: lint, format, tipos, tests, contrato y build de imagen; el despliegue sigue el GitFlow de la
   metodología cuando aplique.
 - Contenedor no root, `uv sync --frozen --no-dev`, healthcheck y variables por entorno.
@@ -181,37 +185,33 @@ Reglas de concurrencia:
 ## 11. Observabilidad
 
 - `/health` y `/ready`; `ready` comprueba dependencias reales.
-- Logs estructurados con IDs de petición/expedición; nunca secretos ni payloads completos.
+- Logs estructurados con IDs de petición y recurso; nunca secretos ni payloads completos.
 - `/metrics` o instrumentación OpenTelemetry para latencia, errores por proveedor y volumen.
 - Un 502 registra la causa; el cliente recibe un mensaje genérico.
 
-## 12. Puente Odoo
+## 12. Integración con sistemas existentes
 
-- Módulo separado en `scalpers-v11/addons`, con `__manifest__`, README, CHANGELOG, icono y tests.
-- `request_id` determinista `uuid5(nombre + intento)` **confirmado en un cursor independiente**
-  antes de la llamada HTTP.
-- Odoo usa `REPEATABLE READ`: la transacción principal no ve lo confirmado por el cursor auxiliar y
-  un `UPDATE` posterior de la misma fila puede fallar. Tras el commit auxiliar, escribe el
-  resultado también en cursor auxiliar y no actualices esa fila en la transacción principal.
-- El contador de intentos solo avanza tras rechazo confirmado o cancelación.
-- `outcome_unknown` bloquea la regeneración hasta conciliar por `external_ref`.
-- En tablas grandes no pongas `default` en campos nuevos; el `_init_column` de Odoo hace un
-  `UPDATE` de toda la tabla.
-- Antes de añadir una vista hija de `stock.picking`, comprueba que las vistas existentes no
-  referencien campos inexistentes; una vista huérfana de otro módulo bloquea tu instalación.
-- Campos nuevos con `help`, `_description` y ACL cuando corresponda; el módulo no conoce
-  transportistas concretos: el código del carrier es configuración.
+- Un sistema existente (monolito, ERP, legacy) es un **adaptador**, no el centro del servicio.
+- El adaptador traduce su modelo al contrato; no comparte tablas, transacciones ni claves internas.
+- La idempotencia se sostiene en el servicio: `request_id` persistido y confirmado antes de la
+  llamada, aunque el sistema llamante falle o repita la petición.
+- Si el sistema llamante usa aislamiento de instantánea, no actualices la misma fila en la
+  transacción principal después de confirmar el `request_id` en otra transacción; escribe el
+  resultado en la transacción auxiliar y expón el estado por el contrato.
+- Integración gradual: feature flag por recurso/consumidor, ejecución en paralelo, comparación de
+  resultados y corte por caso de uso, nunca big bang.
+- El sistema existente no debe conocer detalles del microservicio; solo el contrato.
 
 ## 13. Adaptación a otros dominios
 
-El esqueleto no es de transporte: cambia el vocabulario y conserva las reglas.
+El esqueleto no es de un dominio concreto: cambia el vocabulario y conserva las reglas.
 
 | Dominio | Entidad | Puertos | Contrato |
 |---|---|---|---|
-| Transporte | Shipment/Package | CarrierPort, Repository, LabelStore | shipment-request/response |
-| Facturación | Invoice/Line | BillingPort, Repository, PdfStore | invoice-request/response |
+| Facturación | Invoice/Line | BillingPort, Repository, DocumentStore | invoice-request/response |
 | Notificaciones | Message | SenderPort, Repository | notification-request/response |
 | Catálogo | Product | SourcePort, Repository | product-sync |
+| Inventario | StockItem | WarehousePort, Repository | stock-request/response |
 
 Checklist de adaptación:
 
@@ -226,22 +226,20 @@ Checklist de adaptación:
 ## 14. Anti-patrones
 
 - `domain/` importando FastAPI, Pydantic, SQL o `requests`.
-- Reglas de negocio en routers, adaptadores o vistas de Odoo.
+- Reglas de negocio en routers, adaptadores o en el sistema llamante.
 - Contrato que se cambia sin versión ni tests.
 - Llamar al proveedor antes de confirmar el `pending`.
 - Reintentar un `outcome_unknown` automáticamente.
 - Devolver 500 por una carrera de unicidad o por un dato viejo.
 - `default` en campos nuevos de tablas grandes.
-- `search([])` o `UPDATE` sin `WHERE id` en una ruta de petición.
+- Escaneos o actualizaciones de tabla completa en una ruta de petición.
 - Credenciales en YAML, logs o commits.
-- Cuatro repositorios para un piloto que cabe en cuatro carpetas.
-- Odoo y microservicios mezclados en el mismo repo o en la misma transacción.
+- Varios repositorios para un piloto que cabe en varias carpetas.
+- Acoplar la base a un dominio, a un proveedor o a un sistema llamante.
 
 ## 15. Referencias internas
 
-- `transport-service/src/transport/domain` — ejemplo de dominio puro.
-- `transport-service/src/transport/application/use_cases` — idempotencia y errores.
-- `transport-service/src/transport/infrastructure` — adaptadores, SQLite, etiquetas y config.
-- `transport-service/tests/test_architecture.py` — regla de dependencia.
-- `transport-service/docs/PLAN-DESARROLLO-piloto.md` — decisiones del piloto.
-- `scalpers-v11/addons/scalpers_delivery_carrier_service` — puente Odoo y cursor independiente.
+- `references/architecture.md` — este documento.
+- `references/metodologia-scalpers.md` — encaje con la metodología de empresa.
+- `references/checklist.md` — puerta de entrega.
+- `assets/service-tree.md` — árbol de servicios, compose y Dockerfile.

@@ -4,6 +4,9 @@ Profile for Scalpers microservices built with the hexagonal architecture. It pac
 architecture rules, the domain guard, a verify example and the
 `scalpers-hexagonal-microservice` skill so any repository can follow the same mechanics.
 
+The base is domain-agnostic: it does not contain product-specific rules.
+The same profile serves billing, catalog, notifications, operations or any other service.
+
 ## Contents
 
 ```text
@@ -38,16 +41,16 @@ generic skills are not copied here.
 
 ## What the guard checks
 
-- No framework, HTTP, SQL, YAML or infrastructure import inside any `domain/` directory, in
-  both layouts: `services/*/src/*/domain` and `src/*/domain`.
-- No `print()` in domain or application code.
-- `--staged` mode checks only the staged Python files.
+- No framework, HTTP, SQL, YAML or infrastructure import inside any `domain/` directory,
+  whatever the service layout.
+- No `print()` in service code.
+- `--staged` mode checks the index content of the staged Python files; with no staged Python it exits 0 because there is nothing to review. Dynamic imports are checked only when the module name is a literal.
 
 ## Boundaries
 
 - The profile does not deploy, does not touch production and does not use a shared database.
-- The Odoo bridge stays in `scalpers-v11`; this profile is for the transport or any other
-  microservice, never for the Odoo module.
+- The profile is independent of the calling system. Integrations with a monolith, ERP or legacy
+  system are adapters or separate modules; they are not part of this repository or its compose.
 - The pilot keeps one repo with services in subfolders; the repository split from the
   methodology applies when the service moves to platform.
 - The company norm wins; this profile only adds microservice rules.

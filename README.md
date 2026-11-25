@@ -41,7 +41,7 @@ Odoo docs. It never touches production and never uses the shared `scalpers` data
 ## Hexagonal microservices
 
 `profiles/hexagonal` packages the architecture rules and the executable guard for any
-Scalpers microservice, not only transport: pure domain, contract-first API, ports and
+Scalpers microservice, whatever its domain: pure domain, contract-first API, ports and
 adapters, idempotency, `problem+json`, persistence, tests and Docker. The
 `scalpers-hexagonal-microservice` skill carries the full architecture, the company
 methodology mapping, the checklist and the service tree. The guard rejects framework, HTTP,
