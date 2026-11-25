@@ -540,7 +540,11 @@ class TestHexagonalLint(unittest.TestCase):
                 cwd=root,
                 capture_output=True,
                 text=True,
-                env={"GUARD_ROOT": str(root), "PATH": "/usr/bin:/bin"},
+                env={
+                    "GUARD_ROOT": str(root),
+                    "GIT_CEILING_DIRECTORIES": str(root.parent),
+                    "PATH": "/usr/bin:/bin",
+                },
             )
         self.assertEqual(result.returncode, 1)
         self.assertIn("git diff failed", result.stderr)

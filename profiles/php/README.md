@@ -1,8 +1,10 @@
 # PHP profile
 
-The PHP profile uses the same gates as the Odoo profile:
+The PHP profile uses the same gates as the Odoo profile, plus its own GGA rules:
 
 - `guard`: PHPStan, PHPCS and PHPUnit on the staged files;
+- `gga`: `gga/REVIEW-RULES.md` with strict types, PSR-12, PHPStan, PHPCS, PHPUnit,
+  Composer and application-security rules; it is appended to the language-agnostic core;
 - `verify`: boot the dev server, hit the health endpoint and run the suite;
 - `evals`: a case per skill or review rule that changes.
 

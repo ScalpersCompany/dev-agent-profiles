@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0] - 2026-11-25
+
+### Added
+
+- `gga/REVIEW-RULES.md`: Odoo 11 / OCA blocking rules, appended to the language-agnostic core by `install-gga.sh --profile`.
+- GGA coverage for manifest/version/changelog, flake8, mandatory pylint, check-xml, pre-commit, pipeline evidence, OCA/ORM N+1, access rules, migrations, queue and real MR failure patterns.
+
 ## [1.0.0] - 2026-11-19
 
 ### Added

@@ -13,6 +13,7 @@ The same profile serves billing, catalog, notifications, operations or any other
 profile.json                 contract
 profile.env                  runtime values
 AGENTS.fragment.md           microservice rules added to the repo AGENTS.md
+gga/REVIEW-RULES.md          microservice blocking rules appended to the core GGA rules
 guard/hexagonal.sh           guard entry point
 guard/hexagonal_lint.py      domain dependency and print checks
 verify/config.env.example    boot, health, smoke, test and timeout

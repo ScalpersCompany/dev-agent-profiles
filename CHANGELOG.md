@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0] - 2026-11-25
+
+### Added
+
+- `profiles/odoo11/gga/REVIEW-RULES.md`: Odoo 11 / OCA blocking rules appended to the language-agnostic core: manifest and version, flake8, mandatory pylint, check-xml, pre-commit, pipeline evidence, OCA/ORM N+1, access rules, migrations, queue and real MR failure patterns.
+- `profiles/php/gga/REVIEW-RULES.md`: PHP 8 rules for strict types, PSR-12, PHPStan, PHPCS, PHPUnit, Composer and application security.
+- `profiles/hexagonal/gga/REVIEW-RULES.md`: microservice rules for domain purity, contract-first, idempotency, provider outcomes, problem+json, persistence, tests, Docker and evidence.
+
+### Changed
+
+- GGA rules are profile-owned; one profile's language rules never apply to another. The core keeps only the language-agnostic contract.
+
 ## [1.6.0] - 2026-11-25
 
 ### Changed

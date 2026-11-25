@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.0] - 2026-11-25
+
+### Añadido
+
+- `gga/REVIEW-RULES.md`: reglas de revisión del microservicio que se añaden al núcleo
+  agnóstico: pureza del dominio, contrato primero, idempotencia y resultados del proveedor,
+  `problem+json`, persistencia, pruebas, Docker y evidencia.
+- El perfil declara su contrato GGA; no hereda las reglas de Odoo ni de PHP.
+
 ## [1.1.0] - 2026-11-25
 
 ### Cambiado

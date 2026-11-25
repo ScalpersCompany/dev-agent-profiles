@@ -10,6 +10,7 @@ skills; this directory only adds what is Odoo-specific.
 profile.json                 contract
 profile.env                  runtime values
 AGENTS.fragment.md           Odoo rules added to the repo AGENTS.md
+gga/REVIEW-RULES.md          Odoo 11 blocking rules appended to the core GGA rules
 guard/odoo.sh                profile guard entry point
 guard/odoo_lint.py           sudo, cr.commit, raw SQL, print checks
 guard/odoo_allowlist.txt     only paths where sudo() is accepted
