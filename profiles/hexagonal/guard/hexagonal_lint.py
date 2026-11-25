@@ -9,6 +9,46 @@ import sys
 from pathlib import Path
 
 FORBIDDEN_SUBMODULES = {"application", "infrastructure", "api"}
+FORBIDDEN_STDLIB = {
+    "asyncio",
+    "bz2",
+    "concurrent",
+    "ctypes",
+    "dbm",
+    "fcntl",
+    "fileinput",
+    "ftplib",
+    "glob",
+    "gzip",
+    "http",
+    "imaplib",
+    "io",
+    "lzma",
+    "mmap",
+    "multiprocessing",
+    "os",
+    "pathlib",
+    "poplib",
+    "select",
+    "selectors",
+    "shelve",
+    "shutil",
+    "signal",
+    "smtplib",
+    "socket",
+    "socketserver",
+    "sqlite3",
+    "ssl",
+    "subprocess",
+    "tarfile",
+    "tempfile",
+    "threading",
+    "urllib",
+    "webbrowser",
+    "xmlrpc",
+    "zipfile",
+}
+FORBIDDEN_STDLIB_PREFIXES = ("logging.config", "logging.handlers")
 IGNORED_PARTS = {
     ".git",
     ".venv",
@@ -96,20 +136,53 @@ def package_for(domain_dir, root):
     return parent.name
 
 
-def import_problem(module, names, level, package, domain_package):
+def current_package_for(path, domain_dir, root):
+    package = package_for(domain_dir, root)
+    root_package = (
+        package if package == domain_dir.name else "%s.%s" % (package, domain_dir.name)
+    )
+    try:
+        parts = path.relative_to(domain_dir).parts[:-1]
+    except ValueError:
+        parts = ()
+    if parts:
+        return "%s.%s" % (root_package, ".".join(parts))
+    return root_package
+
+
+def import_problem(module, names, level, package, domain_package, current_package):
+    current = current_package.split(".") if current_package else []
     if level:
+        base = current[: max(0, len(current) - (level - 1))] if level > 1 else current
         if module:
-            parts = module.split(".")
-            if any(part in FORBIDDEN_SUBMODULES for part in parts):
-                return module
+            target_parts = base + module.split(".")
+            target = ".".join(target_parts)
+            if any(part in FORBIDDEN_SUBMODULES for part in target_parts):
+                return target
+            if target == domain_package or target.startswith(domain_package + "."):
+                return None
+            return target
         for name in names:
             if name in FORBIDDEN_SUBMODULES:
                 return name
+            target = ".".join(base + [name])
+            if target == domain_package or target.startswith(domain_package + "."):
+                continue
+            return target
         return None
     if not module:
         return None
     parts = module.split(".")
     if parts[0] in STDLIB:
+        if parts[0] in FORBIDDEN_STDLIB:
+            return module
+        candidates = [module] + ["%s.%s" % (module, name) for name in names]
+        if any(
+            candidate == prefix or candidate.startswith(prefix + ".")
+            for prefix in FORBIDDEN_STDLIB_PREFIXES
+            for candidate in candidates
+        ):
+            return module
         return None
     if parts[0] in {"src", "app"}:
         if any(part in FORBIDDEN_SUBMODULES for part in parts[1:]):
@@ -123,15 +196,25 @@ def import_problem(module, names, level, package, domain_package):
             return module
         if any(name in FORBIDDEN_SUBMODULES for name in names):
             return module
-        if domain_package:
+        if domain_package and (
+            module == domain_package or module.startswith(domain_package + ".")
+        ):
             return None
-        if "domain" in parts[1:] or ("domain" in names and len(parts) == 1):
+        if module == package and names and all(name == "domain" for name in names):
             return None
         return module
     return module
 
 
-def _dynamic_problem(node, package, domain_package, importlib_aliases, import_aliases, builtins_aliases):
+def _dynamic_problem(
+    node,
+    package,
+    domain_package,
+    current_package,
+    importlib_aliases,
+    import_aliases,
+    builtins_aliases,
+):
     if not isinstance(node, ast.Call):
         return None
     func = node.func
@@ -158,11 +241,13 @@ def _dynamic_problem(node, package, domain_package, importlib_aliases, import_al
         return None
     argument = node.args[0]
     if isinstance(argument, ast.Constant) and isinstance(argument.value, str):
-        return import_problem(argument.value, [], 0, package, domain_package)
+        return import_problem(
+            argument.value, [], 0, package, domain_package, current_package
+        )
     return None
 
 
-def check_imports(source, path, package, domain_package):
+def check_imports(source, path, package, domain_package, current_package):
     findings = []
     try:
         tree = ast.parse(source, filename=str(path))
@@ -171,6 +256,7 @@ def check_imports(source, path, package, domain_package):
     importlib_aliases = set()
     import_aliases = set()
     builtins_aliases = set()
+    open_aliases = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom) and node.module == "importlib":
             for alias in node.names:
@@ -180,6 +266,8 @@ def check_imports(source, path, package, domain_package):
             for alias in node.names:
                 if alias.name == "__import__":
                     import_aliases.add(alias.asname or alias.name)
+                elif alias.name == "open":
+                    open_aliases.add(alias.asname or alias.name)
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 if alias.name == "importlib":
@@ -189,19 +277,39 @@ def check_imports(source, path, package, domain_package):
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                problem = import_problem(alias.name, [], 0, package, domain_package)
+                problem = import_problem(
+                    alias.name, [], 0, package, domain_package, current_package
+                )
                 if problem:
                     findings.append("%s:%s: forbidden import '%s'" % (path, node.lineno, problem))
         elif isinstance(node, ast.ImportFrom):
             names = [alias.name for alias in node.names]
-            problem = import_problem(node.module or "", names, node.level, package, domain_package)
+            problem = import_problem(
+                node.module or "",
+                names,
+                node.level,
+                package,
+                domain_package,
+                current_package,
+            )
             if problem:
                 findings.append("%s:%s: forbidden import '%s'" % (path, node.lineno, problem))
+        elif isinstance(node, ast.Call) and (
+            (isinstance(node.func, ast.Name) and (node.func.id == "open" or node.func.id in open_aliases))
+            or (
+                isinstance(node.func, ast.Attribute)
+                and node.func.attr == "open"
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id in builtins_aliases | {"builtins"}
+            )
+        ):
+            findings.append("%s:%s: open() is not allowed in domain/" % (path, node.lineno))
         else:
             problem = _dynamic_problem(
                 node,
                 package,
                 domain_package,
+                current_package,
                 importlib_aliases,
                 import_aliases,
                 builtins_aliases,
@@ -264,6 +372,8 @@ def main():
     parser.add_argument("--staged", action="store_true")
     parser.add_argument("--files", nargs="*", default=None)
     args = parser.parse_args()
+    if args.files is not None and not args.staged:
+        parser.error("--files requires --staged")
     root = Path(args.root).resolve()
     domains = domain_dirs(root)
     if not domains:
@@ -299,8 +409,19 @@ def main():
         for directory in domains:
             if _is_inside(path, directory):
                 package = package_for(directory, root)
+                domain_package = (
+                    directory.name
+                    if package == directory.name
+                    else "%s.%s" % (package, directory.name)
+                )
                 findings.extend(
-                    check_imports(source, path, package, package == directory.name)
+                    check_imports(
+                        source,
+                        path,
+                        package,
+                        domain_package,
+                        current_package_for(path, directory, root),
+                    )
                 )
                 break
         findings.extend(check_prints(source, path, root))

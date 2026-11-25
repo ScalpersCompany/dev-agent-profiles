@@ -398,6 +398,139 @@ class TestHexagonalLint(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("syntax error", result.stdout)
 
+    def test_stdlib_io_modules_are_forbidden(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for text in ("import sqlite3\n", "import urllib.request\n", "import subprocess\n"):
+                write(root / "src" / "demo" / "domain" / "entities.py", text)
+                result = run_lint(root)
+                self.assertEqual(result.returncode, 1, text)
+        self.assertTrue(True)
+
+    def test_relative_sibling_config_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(
+                root / "src" / "demo" / "domain" / "entities.py",
+                "from ..config import S\n",
+            )
+            result = run_lint(root)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("config", result.stdout)
+
+    def test_relative_sibling_domain_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(
+                root / "src" / "demo" / "domain" / "entities.py",
+                "from ..domain import X\n",
+            )
+            result = run_lint(root)
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_relative_current_domain_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(
+                root / "src" / "demo" / "domain" / "entities.py",
+                "from .entities import X\n",
+            )
+            result = run_lint(root)
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_src_domain_relative_sibling_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root / "src" / "domain" / "value.py", "from ..config import S\n")
+            result = run_lint(root)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("config", result.stdout)
+
+    def test_own_package_config_import_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for text in (
+                "from svc.config import Settings\n",
+                "import svc.config\n",
+                "from svc import config\n",
+            ):
+                write(root / "src" / "svc" / "domain" / "entities.py", text)
+                result = run_lint(root)
+                self.assertEqual(result.returncode, 1, text)
+        self.assertTrue(True)
+
+    def test_own_package_domain_import_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root / "src" / "svc" / "domain" / "entities.py", "from svc import domain\n")
+            result = run_lint(root)
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_pathlib_in_domain_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root / "src" / "svc" / "domain" / "entities.py", "import pathlib\n")
+            result = run_lint(root)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("pathlib", result.stdout)
+
+    def test_more_stdlib_io_modules_are_forbidden(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for text in (
+                "import glob\n",
+                "import zipfile\n",
+                "import gzip\n",
+                "import tarfile\n",
+                "import logging.handlers\n",
+                "from logging import config\n",
+            ):
+                write(root / "src" / "demo" / "domain" / "entities.py", text)
+                result = run_lint(root)
+                self.assertEqual(result.returncode, 1, text)
+        self.assertTrue(True)
+
+    def test_open_in_domain_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(
+                root / "src" / "demo" / "domain" / "entities.py",
+                "data = open('x').read()\n",
+            )
+            result = run_lint(root)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("open()", result.stdout)
+
+    def test_files_without_staged_is_an_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root / "src" / "demo" / "domain" / "entities.py", "x = 1\n")
+            result = run_lint(root, "--files", "src/demo/domain/entities.py")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("--files requires --staged", result.stderr)
+
+    def test_builtins_open_alias_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(
+                root / "src" / "demo" / "domain" / "entities.py",
+                "from builtins import open as o\no('x')\n",
+            )
+            result = run_lint(root)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("open()", result.stdout)
+
+    def test_builtins_module_open_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(
+                root / "src" / "demo" / "domain" / "entities.py",
+                "import builtins as b\nb.open('x')\n",
+            )
+            result = run_lint(root)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("open()", result.stdout)
+
     def test_guard_staged_failure_outside_a_repository(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

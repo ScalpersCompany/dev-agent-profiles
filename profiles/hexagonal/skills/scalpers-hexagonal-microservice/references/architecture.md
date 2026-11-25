@@ -77,7 +77,7 @@ plataforma, cada componente puede separarse en su repositorio.
 - Un caso de uso por acción: `CreateX`, `GetX`, `CancelX`, `ListX`, `CloseX`.
 - El caso de uso recibe puertos por constructor; no los busca en globales.
 - Respuestas HTTP construidas en `responses.py` a partir de dominio y resultados de puerto.
-- La idempotencia, la transacción y el orden de las llamadas viven en el caso de uso.
+- Si hay efectos o llamadas salientes, la idempotencia, la transacción y el orden de las llamadas viven en el caso de uso.
 
 ## 5. Contrato y API
 
@@ -85,13 +85,13 @@ plataforma, cada componente puede separarse en su repositorio.
 - SemVer del contrato independiente de la versión del servicio. Aditivo = menor; quitar, renombrar
   o endurecer = mayor y ventana de migración.
 - Validar ejemplos contra el esquema en tests y comprobar que la copia del repo no se desvía.
-- Errores `application/problem+json` (RFC 9457) con `type`, `title`, `status` y `code` estable.
+- Si el límite es HTTP, errores `application/problem+json` (RFC 9457) con `type`, `title`, `status` y `code` estable.
 - Códigos de error cerrados y documentados; un `code` nuevo es un cambio de contrato.
 - Un 4xx no oculta un error de validación; un 502 no filtra el mensaje crudo del proveedor: se
   registra y se devuelve un texto genérico.
-- `Idempotency-Key`, si existe, debe coincidir con el `request_id` del cuerpo.
-- Autenticación por API key por consumidor, hash en configuración y permisos por recurso. 401 sin
-  clave; 403 con clave sin permiso.
+- Si el límite es HTTP, `Idempotency-Key`, si existe, debe coincidir con el `request_id` del cuerpo.
+- Si el límite es HTTP, autenticación por API key por consumidor, hash en configuración y permisos
+  por recurso. 401 sin clave; 403 con clave sin permiso.
 
 ## 6. Idempotencia y ciclo de vida
 
@@ -148,7 +148,7 @@ Reglas de concurrencia:
   variable que falta.
 - Credenciales solo por entorno o vault; nunca en el repositorio, en logs ni en la respuesta.
 - Campos sensibles con control de acceso del sistema; el hash de una API key no es la clave.
-- Consumidores con recursos permitidos y entornos donde aplican; el seed reconcilia y deshabilita
+- Si hay consumidores con permisos, recursos permitidos y entornos donde aplican; el seed reconcilia y deshabilita
   los que desaparecen del YAML.
 - Secretos en tests: fixtures locales, nunca valores reales.
 
@@ -165,8 +165,8 @@ Reglas de concurrencia:
 | E2E | flujo completo entre servicios | script + compose o TestClient |
 
 - Un test por regla observable; cubre salida, código y estado persistido.
-- Añade concurrencia (dos POST con el mismo `request_id`), timeout tras enviar, path traversal y
-  replay tras una transición de estado.
+- Si hay efectos, añade concurrencia (dos POST con el mismo `request_id`), timeout tras enviar y
+  replay tras una transición de estado. Si genera artefactos, añade path traversal.
 - Los tests de adaptador no llaman al proveedor real; usan respuestas grabadas.
 - Cobertura: la que fije el proyecto; esta base no impone cifras.
 - Evidencia: comando, salida y fichero generado; no se declara verde sin `Ran N tests` o `passed`.
@@ -180,14 +180,14 @@ Reglas de concurrencia:
   cuando el servicio deja de ser piloto.
 - CI: lint, format, tipos, tests, contrato y build de imagen; el despliegue sigue el GitFlow de la
   metodología cuando aplique.
-- Contenedor no root, `uv sync --frozen --no-dev`, healthcheck y variables por entorno.
+- Contenedor no root, `uv sync --frozen --no-dev`, healthcheck si hay runtime y variables por entorno.
 
 ## 11. Observabilidad
 
-- `/health` y `/ready`; `ready` comprueba dependencias reales.
+- Si el límite es HTTP, `/health` y `/ready`; `ready` comprueba dependencias reales.
 - Logs estructurados con IDs de petición y recurso; nunca secretos ni payloads completos.
-- `/metrics` o instrumentación OpenTelemetry para latencia, errores por proveedor y volumen.
-- Un 502 registra la causa; el cliente recibe un mensaje genérico.
+- `/metrics` o instrumentación OpenTelemetry para latencia, errores por proveedor y volumen, si aplica.
+- Un 502 registra la causa; el cliente recibe un mensaje genérico. Adapta el código si el límite no es HTTP.
 
 ## 12. Integración con sistemas existentes
 
@@ -219,7 +219,7 @@ Checklist de adaptación:
 2. Modela entidades y value objects con unidades explícitas.
 3. Declara puertos con tipos de dominio.
 4. Escribe el contrato antes del adaptador.
-5. Implementa idempotencia y errores con la misma tabla de tres casos.
+5. Si hay efectos, implementa idempotencia y errores con la misma tabla de tres casos.
 6. Reutiliza la estructura de tests y el test de arquitectura.
 7. Cambia el nombre del servicio, el paquete y el compose; no dupliques la lógica.
 

@@ -44,7 +44,8 @@ generic skills are not copied here.
 - No framework, HTTP, SQL, YAML or infrastructure import inside any `domain/` directory,
   whatever the service layout.
 - No `print()` in service code.
-- `--staged` mode checks the index content of the staged Python files; with no staged Python it exits 0 because there is nothing to review. Dynamic imports are checked only when the module name is a literal.
+- `--staged` mode checks the index content of the staged Python files; with no staged Python it exits 0 because there is nothing to review. A repository with Python to check but no `domain/` fails explicitly. `--files` requires `--staged`.
+- The guard is static: it flags literal dynamic imports and `open()`, but cannot see `getattr(builtins, "__import__")(...)` or a module name built at runtime. Use Python >= 3.11 so `stdlib_module_names` classifies the full standard library.
 
 ## Boundaries
 

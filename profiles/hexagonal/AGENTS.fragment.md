@@ -2,7 +2,7 @@
 
 - The company norm is `ScalpersCompany/scalpers-tech-doc/AGENTS.md`; this fragment only adds microservice rules. If they conflict, the company norm wins.
 - Python 3.12 + Pydantic v2; `uv` for environments and lock files. FastAPI is the default HTTP boundary, not an architecture requirement.
-- `domain/` imports only the standard library and domain modules. No FastAPI, Pydantic, SQL, HTTP, YAML or infrastructure; `guard/hexagonal.sh` enforces it.
+- `domain/` imports only the standard library without I/O or concurrency (see the profile README for the denied modules) and domain modules. No FastAPI, Pydantic, SQL, HTTP, YAML or infrastructure; `guard/hexagonal.sh` enforces it.
 - The contract is the source of truth: JSON Schema 2020-12 and OpenAPI 3.1, SemVer, examples and contract tests in the same change.
 - Business rules live in the domain; use cases orchestrate; adapters translate. Routers and repositories do not decide policy.
 - When the service has side effects or outbound calls, idempotency is `(consumer, request_id)` with a canonical body hash and a durable `pending` claim before the call.

@@ -10,7 +10,8 @@
   ni tablas de un producto concreto.
 - Regla de tablas grandes generalizada: defaults y backfills que puedan reescribir la tabla se validan con el motor; columnas nullable y backfill explícito.
 - Árbol de ejemplo, contratos y compose con nombres genéricos (`orders-api`, `notification-worker`).
-- Guard con allowlist de stdlib y dominio propio, lectura del índice en `--staged`, detección de `builtins.print` y fallo explícito si no encuentra ningún `domain/`; 37 tests.
+- Guard con denylist de stdlib con I/O, allowlist del dominio propio, detección de `open()` (también con alias de `builtins`), lectura del índice en `--staged`, `--files` exige `--staged`, detección de `builtins.print` y fallo explícito si no encuentra ningún `domain/`; 50 tests.
+- El guard resuelve imports relativos por paquete actual y rechaza imports absolutos del propio paquete fuera de `domain/` (`svc.config`, `svc.application`).
 - CI ejecuta los tests, la sintaxis de shell y la compilación del linter del perfil.
 
 ## [1.0.0] - 2026-11-25

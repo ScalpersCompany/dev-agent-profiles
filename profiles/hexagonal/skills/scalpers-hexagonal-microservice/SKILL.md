@@ -13,7 +13,7 @@ Load before designing, creating, restructuring or reviewing a Scalpers microserv
 
 ## Hard Rules
 
-- `domain/` imports only the standard library and domain modules: no FastAPI, Pydantic, HTTP, SQL, YAML or infrastructure.
+- `domain/` imports only the standard library without I/O or concurrency (see the profile README for the denied modules) and domain modules: no FastAPI, Pydantic, HTTP, SQL, YAML or infrastructure.
 - The contract is the source of truth: validate request and response against its JSON Schema/OpenAPI, version it with SemVer and cover it with contract tests.
 - Business rules live in the domain; use cases orchestrate; adapters translate. An adapter never decides business policy.
 - When the service has side effects or outbound calls, idempotency is `(consumer, request_id)` plus a canonical body hash and a durable `pending` claim before the call.

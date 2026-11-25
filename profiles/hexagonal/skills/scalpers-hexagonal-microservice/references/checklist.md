@@ -12,7 +12,7 @@
 
 ## Dominio
 
-- [ ] `domain/` solo importa biblioteca estándar y módulos de dominio.
+- [ ] `domain/` solo importa biblioteca estándar sin I/O ni concurrencia (lista en el README del perfil) y módulos de dominio.
 - [ ] Entidades y value objects con unidades explícitas (moneda, tiempo, cantidad).
 - [ ] Si hay importes, dinero con `Decimal`, no `float`.
 - [ ] Estados normalizados y traducción del proveedor en su adaptador.
@@ -21,10 +21,11 @@
 
 ## Aplicación e idempotencia
 
-Si el servicio tiene efectos o llamadas salientes:
-
 - [ ] DTO estricto (`extra="forbid"`) y mapeo explícito a dominio.
 - [ ] Un caso de uso por acción; puertos por constructor.
+
+Si el servicio tiene efectos o llamadas salientes:
+
 - [ ] `(consumer, request_id)` con hash canónico y `pending` persistido antes de la llamada.
 - [ ] Replay de `completed`; 409 en `pending`; 422 si cambia el cuerpo.
 - [ ] `failed` reintenta con el mismo `request_id`; `outcome_unknown` no se reintenta.
@@ -53,7 +54,7 @@ Si el servicio almacena estado:
 
 - [ ] `${VAR}` resueltas del entorno y fail-fast al arrancar.
 - [ ] Credenciales fuera del repo, de logs y de respuestas.
-- [ ] Consumidores con permisos y entornos; seed reconcilia y deshabilita retirados.
+- [ ] Si hay consumidores con permisos: recursos y entornos declarados; el seed reconcilia y deshabilita retirados.
 - [ ] Campos sensibles con control de acceso del sistema.
 
 ## Pruebas
@@ -62,7 +63,7 @@ Si el servicio almacena estado:
 - [ ] Unitarios de dominio y casos de uso con fakes.
 - [ ] Contrato: ejemplos y esquemas; copia byte a byte.
 - [ ] Adaptadores con respuestas grabadas, sin red.
-- [ ] API: auth, permisos, errores, replay, cancelación.
+- [ ] API: auth, permisos y errores; si hay efectos, replay y cancelación.
 - [ ] E2E del flujo completo; evidencia de comando y salida.
 - [ ] Cobertura: la que fije el proyecto.
 - [ ] Si el servicio tiene efectos o llamadas salientes: concurrencia con el mismo `request_id`, timeout tras enviar y replay tras una transición.
