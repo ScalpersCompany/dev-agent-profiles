@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.0] - 2026-11-25
+
+### Added
+
+- `profiles/hexagonal`: profile for Scalpers microservices with the domain guard, verify
+  example, profile rules and the `scalpers-hexagonal-microservice` skill.
+- Guard against framework, HTTP, SQL, YAML and infrastructure imports in `domain/`, and
+  against `print()` in service code; unit tests for the guard.
+- Root README entry and profile documentation.
+
 ## [1.4.0] - 2026-11-19
 
 ### Changed
