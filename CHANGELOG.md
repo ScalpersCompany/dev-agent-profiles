@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.6.0] - 2026-11-25
+
+### Changed
+
+- Made the `hexagonal` profile domain-agnostic: removed product- and system-specific rules from
+  the AGENTS fragment, README, docs, checklist and skill.
+- The skill now describes integrations with existing systems as separate adapters or modules,
+  without naming a concrete system or its tables.
+- Generic service tree and compose examples.
+
+## [1.5.0] - 2026-11-25
+
+### Added
+
+- `profiles/hexagonal`: profile for Scalpers microservices with the domain guard, verify
+  example, profile rules and the `scalpers-hexagonal-microservice` skill.
+- Guard against framework, HTTP, SQL, YAML and infrastructure imports in `domain/`, and
+  against `print()` in service code; unit tests for the guard.
+- Root README entry and profile documentation.
+
 ## [1.4.0] - 2026-11-19
 
 ### Changed

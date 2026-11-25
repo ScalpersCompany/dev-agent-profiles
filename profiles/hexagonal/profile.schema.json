@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "dev-agent-kit profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "version", "api", "language", "description", "guard", "verify", "skills", "evals", "agents"],
+  "properties": {
+    "name": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "api": {"type": "integer", "const": 1},
+    "language": {"type": "string"},
+    "description": {"type": "string"},
+    "guard": {"type": "array", "items": {"type": "string"}},
+    "verify": {"type": "string"},
+    "skills": {"type": "string"},
+    "evals": {"type": "string"},
+    "agents": {"type": "string"}
+  }
+}

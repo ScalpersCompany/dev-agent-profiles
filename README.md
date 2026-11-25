@@ -2,6 +2,8 @@
 
 Environment profiles for `dev-agent-kit`. One directory per environment:
 
+- `profiles/hexagonal`: hexagonal microservices, contract-first and idempotent; domain guard,
+  verify example and the `scalpers-hexagonal-microservice` skill.
 - `profiles/odoo11`: Odoo 11 guard, verify, skills, evals and docs.
 - `profiles/php`: PHP skeleton; PHPStan, PHPCS and PHPUnit are the next step.
 
@@ -35,6 +37,15 @@ Copy a profile into the target repository as `.dev-agent/profiles/<name>`, write
 
 `profiles/odoo11` contains the linter, allowlist, Odoo skills, eval cases, rubrics and
 Odoo docs. It never touches production and never uses the shared `scalpers` database.
+
+## Hexagonal microservices
+
+`profiles/hexagonal` packages the architecture rules and the executable guard for any
+Scalpers microservice, whatever its domain: pure domain, contract-first API, ports and
+adapters, idempotency, `problem+json`, persistence, tests and Docker. The
+`scalpers-hexagonal-microservice` skill carries the full architecture, the company
+methodology mapping, the checklist and the service tree. The guard rejects framework, HTTP,
+SQL, YAML and infrastructure imports inside `domain/` and `print()` in service code.
 
 ## rsc-harness and gentle-ai
 

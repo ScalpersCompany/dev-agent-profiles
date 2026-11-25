@@ -4,3 +4,5 @@ verify/config.env
 evidence/
 guard-report.json
 evals/runs/
+
+.atl/
