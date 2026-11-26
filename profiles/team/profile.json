@@ -1,0 +1,12 @@
+{
+  "name": "team",
+  "version": "0.1.0",
+  "api": 1,
+  "language": "any",
+  "description": "Multi-agent role contract: plan, dev, review, verify and the eval judge, each with its own write surface and exit command",
+  "guard": ["guard/team.sh"],
+  "verify": "verify/config.env.example",
+  "skills": "skills",
+  "evals": "evals/cases",
+  "agents": "AGENTS.fragment.md"
+}

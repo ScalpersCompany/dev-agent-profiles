@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.9.0] - 2026-11-26
+
+### Added
+
+- `profiles/team`: role contract for work split across several agents on one repository. Four
+  roles (`plan`, `dev`, `review`, `verify`) plus the kit's eval judge, each with its write
+  surface, its closing command, and the rule that review and verify are read-only and run on a
+  copy.
+- `roles.json` and `roles.md`: the contract is machine-readable and validated by the profile
+  guard, not only described.
+- The profile delegates the language checks to the base profile declared in
+  `.dev-agent/team.env`, so one active profile per repository still holds.
+
 ## [1.8.0] - 2026-11-25
 
 ### Added

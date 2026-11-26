@@ -6,6 +6,8 @@ Environment profiles for `dev-agent-kit`. One directory per environment:
   GGA rules, verify example and the `scalpers-hexagonal-microservice` skill.
 - `profiles/odoo11`: Odoo 11 guard, GGA rules, verify, skills, evals and docs.
 - `profiles/php`: PHP 8 skeleton with its own GGA rules; PHPStan, PHPCS and PHPUnit are the next step.
+- `profiles/team`: role contract for work split across several agents on one repository; plan,
+  dev, review, verify and the eval judge, each with its write surface and exit command.
 
 The core keeps the contract, the gate and the hooks. A profile supplies the language
 content; it does not replace `guard`, `verify` or the hooks. Each profile also owns its
