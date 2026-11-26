@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.1.3] - 2026-11-26
+
+### Añadido
+
+- `bin/team-run.sh`: ejecuta `plan`, `dev`, `review` y `verify` en orden fijo y para en la
+  primera etapa cuya puerta falle. Cada etapa lanza el perfil con `chat -q <consulta> -Q --in
+  <repo> --max-turns N` bajo `timeout`, y la puerta la decide el script: fichero de tareas más
+  `team_lint --task` en `plan`, el runner del repositorio en `dev` (`make check`, o `VERIFY_CMD`
+  / `TEST_CMD` de `.dev-agent/verify.env`), un veredicto con `STATUS: PASSED` en `review` y
+  `team_lint --evidence` sobre `evidence/<run-id>` en `verify`. Códigos de salida propios por
+  etapa, registro por etapa y resumen final con etapa, resultado, puerta y evidencia.
+- `bin/stub-cli.sh`: CLI falso para los tests y para ensayar la cadena sin llamar al modelo.
+- `--from`, `--dry-run` y `--stub-cli` en el runner; `--dry-run` imprime comandos, consultas y
+  puertas sin ejecutar ni escribir nada.
+- `profile.json` declara `runner`, y `team_lint.py` falla el contrato si el fichero declarado no
+  existe o no es ejecutable (`profile.schema.json` y `profile.env` alineados).
+- Tests del runner: orden de etapas, parada en el primer rojo, puerta que rechaza pese a que el
+  CLI responda 0, `--from`, timeout, runner desde `verify.env`, códigos de uso y `--dry-run`
+  sin efectos.
+
 ## [0.1.2] - 2026-11-26
 
 ### Cambiado

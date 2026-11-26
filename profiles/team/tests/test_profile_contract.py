@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import unittest
 from pathlib import Path
@@ -13,8 +14,9 @@ class TestProfileContract(unittest.TestCase):
         self.assertRegex(data["name"], r"^[a-z][a-z0-9-]*$")
         self.assertRegex(data["version"], r"^[0-9]+\.[0-9]+\.[0-9]+$")
         self.assertEqual(data["api"], 1)
-        for key in ("verify", "skills", "evals", "agents"):
+        for key in ("verify", "skills", "evals", "agents", "runner"):
             self.assertTrue((PROFILE / data[key]).exists(), key)
+        self.assertTrue(os.access(str(PROFILE / data["runner"]), os.X_OK), "runner")
         for guard in data["guard"]:
             self.assertTrue((PROFILE / guard).is_file(), guard)
         self.assertTrue((PROFILE / "gga" / "REVIEW-RULES.md").is_file())
@@ -28,6 +30,7 @@ class TestProfileContract(unittest.TestCase):
                 env[key.strip()] = value.strip()
         self.assertEqual(env["PROFILE_NAME"], data["name"])
         self.assertEqual(env["PROFILE_GUARD_CHECKS"], data["guard"][0])
+        self.assertEqual(env["PROFILE_RUNNER"], data["runner"])
         self.assertEqual(env["PROFILE_VERIFY_CONFIG"], "verify/config.env")
         self.assertTrue(re.match(r"^[0-9]+\.[0-9]+\.[0-9]+$", data["version"]))
 

@@ -10,7 +10,7 @@ the profile declared as its base, so `guard` and `verify` keep one implementatio
 ## Contents
 
 ```text
-profile.json                 contract
+profile.json                 contract, declares the runner
 profile.env                  runtime values
 profile.schema.json          schema of profile.json
 roles.json                   machine-readable role contract
@@ -20,10 +20,12 @@ AGENTS.fragment.md           multi-agent rules added to the repo AGENTS.md
 gga/REVIEW-RULES.md          blocking rules appended to the core GGA rules
 guard/team.sh                guard entry point: contract, then the base profile checks
 guard/team_lint.py           contract, task file, evidence, score and tree checks
+bin/team-run.sh              the four stages in fixed order, stopping at the first red
+bin/stub-cli.sh              fake CLI for the runner tests and for a dry rehearsal
 verify/config.env.example    verify that inherits the base profile commands
 skills/                      no domain skill yet; roles are the mechanism
 evals/cases/                 no case yet; a role earns one from an observed failure
-tests/                       unit tests for the contract and the checks
+tests/                       unit tests for the contract, the checks and the runner
 ```
 
 ## Roles
@@ -66,6 +68,46 @@ python3 .dev-agent/profiles/team/guard/team_lint.py --tree-unchanged <tree> <has
 
 The first one is the contract lint and also runs before the others. The last two are how a
 card proves that a read-only stage left the tree alone.
+
+## The chain as a command
+
+`roles.json` says who closes each stage; `bin/team-run.sh` runs the four stages in that order
+and stops at the first one whose gate fails. The order and the gates are data and code, not a
+habit: a stage cannot be skipped by forgetting it, and a stage cannot be reported green by the
+agent that ran it.
+
+```bash
+.dev-agent/profiles/team/bin/team-run.sh . --spec odd/tasks/<feature>.md
+```
+
+`profile.json` declares the runner, and `team_lint.py` fails the contract when the declared
+file is missing or is not executable.
+
+| Stage | The runner calls | The runner checks, not the agent's text |
+|---|---|---|
+| `plan` | `hermes -p plan chat -q <query> -Q --in <repo> --max-turns N` | the task file exists and `team_lint.py --task` exits 0 |
+| `dev` | same, `-p dev` | the repository runner exits 0: `make check` when the Makefile has that target, else `VERIFY_CMD` (or `TEST_CMD`) from `.dev-agent/verify.env` |
+| `review` | same, `-p review` | `evidence/<run-id>/review.md` contains `STATUS: PASSED` |
+| `verify` | same, `-p verify` | `team_lint.py --evidence evidence/<run-id>` accepts `summary.json` |
+
+Options: `--from <stage>` starts at one stage and marks the earlier ones as skipped,
+`--dry-run` prints every command and gate and touches nothing, and `--stub-cli [<cli>]` runs a
+fake CLI (default `bin/stub-cli.sh`) so the tests exercise the chain without a model call.
+
+Environment: `TEAM_CLI` (default `hermes`), `TEAM_STAGE_TIMEOUT` (1800 s), `TEAM_MAX_TURNS`
+(40), `TEAM_EVIDENCE` (default `evidence`), `TEAM_RUN_ID`, `TEAM_SPEC`.
+
+Exit codes: `0` chain green, `10` usage, `20` plan, `21` dev, `22` review, `23` verify. Each
+stage writes its own log and the gate output into `evidence/<run-id>/`, and the last block of
+the run is a summary with the stage, its result, the gate and where to look.
+
+Because the gate is a command, a red stage is a red chain whatever the agent answered: an
+agent that says "done" with a failing `make check` stops the chain at `dev`, and an agent that
+says "done" without `STATUS: PASSED` stops it at `review`.
+
+The run directory lives under `evidence/`, which the repository should keep out of version
+control: the read-only proof hashes `HEAD` plus `git status --porcelain`, so an `evidence/`
+that git does not ignore would make `review` look like it changed the tree it was given.
 
 ## Several agents, one board
 

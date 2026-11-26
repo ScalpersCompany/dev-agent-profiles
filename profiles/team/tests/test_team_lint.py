@@ -222,6 +222,21 @@ class TestTeamLint(unittest.TestCase):
         self.assertEqual(changed.returncode, 1)
         self.assertIn("tree changed", changed.stderr)
 
+    def test_missing_runner_is_rejected(self):
+        data = json.loads((self.copy / "profile.json").read_text(encoding="utf-8"))
+        data["runner"] = "bin/nope.sh"
+        (self.copy / "profile.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
+        result = run_lint("--profile", str(self.copy))
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("missing runner: bin/nope.sh", result.stderr)
+
+    def test_runner_without_the_execute_bit_is_rejected(self):
+        runner = self.copy / "bin" / "team-run.sh"
+        runner.chmod(0o644)
+        result = run_lint("--profile", str(self.copy))
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("runner is not executable", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

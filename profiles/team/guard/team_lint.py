@@ -4,6 +4,7 @@
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -86,6 +87,17 @@ def contract_errors(profile_dir):
     if not isinstance(profile, dict):
         errors.append("profile.json must be a JSON object")
         profile = {}
+    runner = profile.get("runner")
+    if runner is not None:
+        if not isinstance(runner, str) or not runner.strip():
+            errors.append("profile.json runner must be a non-empty string")
+        else:
+            path = profile_dir / runner
+            if not path.is_file():
+                errors.append("missing runner: %s" % runner)
+            elif not os.access(str(path), os.X_OK):
+                errors.append("runner is not executable: %s" % runner)
+
     data, problem = load_json(profile_dir / "roles.json")
     if problem:
         errors.append(problem)
