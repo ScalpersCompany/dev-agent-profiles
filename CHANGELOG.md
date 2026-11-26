@@ -12,6 +12,8 @@
   guard, not only described.
 - The profile delegates the language checks to the base profile declared in
   `.dev-agent/team.env`, so one active profile per repository still holds.
+- CI runs the team profile contract and guard tests, the shell syntax check and the lint
+  compilation.
 
 ## [1.8.0] - 2026-11-25
 

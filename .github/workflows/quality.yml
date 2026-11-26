@@ -16,11 +16,14 @@ jobs:
         run: |
           python3 -m unittest discover -s profiles/odoo11/tests -v
           python3 -m unittest discover -s profiles/hexagonal/tests -v
+          python3 -m unittest discover -s profiles/team/tests -v
       - name: Shell syntax
         run: |
           bash -n profiles/odoo11/guard/odoo.sh
           bash -n profiles/hexagonal/guard/hexagonal.sh
+          bash -n profiles/team/guard/team.sh
       - name: Python syntax
         run: |
           python3 -m py_compile profiles/odoo11/guard/odoo_lint.py
           python3 -m py_compile profiles/hexagonal/guard/hexagonal_lint.py
+          python3 -m py_compile profiles/team/guard/team_lint.py
