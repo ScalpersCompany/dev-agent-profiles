@@ -111,6 +111,18 @@ class TestTeamLint(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("unknown spec", result.stderr)
 
+    def test_task_table_with_em_dash_scaffolding_passes(self):
+        path = self.write_task(
+            "# Feature\n\n## Specs\n\n- S1: the rule\n\n"
+            "## Tasks\n\n| ID | Spec | Ruta | Estado |\n|---|---|---|---|\n"
+            "| T0 | — | module skeleton | done |\n"
+            "| T1 | S1 | the change | done |\n\n"
+            "## Evidencia\n\n- T9: this is not a task row and must be ignored\n\n"
+            "## Log\n\n- L1: \"do it\"\n"
+        )
+        result = run_lint("--task", str(path))
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_task_without_l1_is_rejected(self):
         path = self.write_task(
             "# Feature\n\n## Specs\n\n- S1: the rule\n\n"

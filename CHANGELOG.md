@@ -15,6 +15,11 @@
 - CI runs the team profile contract and guard tests, the shell syntax check and the lint
   compilation.
 
+### Fixed
+
+- The task-file check accepts Markdown tables and scaffolding rows without a spec (`—`), and
+  only requires an `S#` on `T<n>` task rows; a section now ends at any level-2 heading.
+
 ## [1.8.0] - 2026-11-25
 
 ### Added

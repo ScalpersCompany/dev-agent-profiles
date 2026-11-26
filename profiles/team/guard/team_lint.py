@@ -31,6 +31,8 @@ ALLOWED_COMMANDS = (
 )
 PLACEHOLDER_RE = re.compile(r"\{[a-z][a-z0-9_]*\}")
 SPEC_RE = re.compile(r"\bS(\d+)\b")
+TASK_ROW_BULLET = re.compile(r"^\s*[-*]\s*\**T(\d+)\b")
+TASK_ROW_TABLE = re.compile(r"^\s*\|\s*\**T(\d+)\b")
 TASK_HEADINGS = ("## Specs", "## Tasks", "## Log")
 
 
@@ -190,7 +192,8 @@ def section_lines(text, heading):
         return None
     body = []
     for line in lines[start + 1 :]:
-        if line.strip() in TASK_HEADINGS:
+        stripped = line.strip()
+        if stripped in TASK_HEADINGS or stripped.startswith("## "):
             break
         body.append(line)
     return body
@@ -215,18 +218,22 @@ def task_errors(path):
     if not spec_ids:
         errors.append("task file has no S# spec")
     for line in tasks:
-        if not line.strip():
+        row = TASK_ROW_BULLET.match(line) or TASK_ROW_TABLE.match(line)
+        if row is None:
             continue
-        if not line.lstrip().startswith(("-", "*")):
-            errors.append("task line outside a bullet: %s" % line.strip()[:60])
-            continue
+        number = row.group(1)
         cited = set(SPEC_RE.findall(line))
         if not cited:
-            errors.append("task without an S# reference: %s" % line.strip()[:60])
+            if "—" in line or "sin spec" in line.lower():
+                continue
+            errors.append("task T%s without an S# reference: %s" % (number, line.strip()[:60]))
             continue
         unknown = sorted(cited - spec_ids)
         if unknown:
-            errors.append("task cites an unknown spec: %s" % ", ".join("S" + item for item in unknown))
+            errors.append(
+                "task T%s cites an unknown spec: %s"
+                % (number, ", ".join("S" + item for item in unknown))
+            )
     first = next((line.strip() for line in log if line.strip()), "")
     if not re.match(r"^(- )?L1\b", first):
         errors.append("log must start with L1, the verbatim request")

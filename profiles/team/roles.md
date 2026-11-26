@@ -29,8 +29,9 @@ only handoff format the contract accepts: a role receives a path, a task ID and 
 `S#`, never a paraphrase of the request.
 
 Exit: `team_lint.py --task` requires `## Specs` with at least one `S<n>`, a `## Tasks` section
-where every line cites an existing `S#`, and a `## Log` whose first entry is `L1` (the user's
-original request, verbatim). A task file that fails this check is not a spec.
+where every task row (a `T<n>` bullet or table row) cites an existing `S#` or carries `—` for
+scaffolding, and a `## Log` whose first entry is `L1` (the user's original request, verbatim).
+A task file that fails this check is not a spec.
 
 Reads: `docs/FEATURE_MAP.md`, `docs/agent-quality/ENVIRONMENT.md`.
 
