@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2] - 2026-11-26
+
+### Cambiado
+
+- `roles.md` y `README.md` dejan de presentar Hermes como el mapeo de referencia: el contrato
+  nombra roles, no productos, y las definiciones por agente se generan del mismo `roles.json`
+  con `dev-agent roles <claude|opencode>` (un perfil de Hermes por rol se crea del mismo fichero).
+
 ## [0.1.1] - 2026-11-26
 
 ### Corregido

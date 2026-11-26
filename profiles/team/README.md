@@ -69,12 +69,13 @@ card proves that a read-only stage left the tree alone.
 
 ## Several agents, one board
 
-The profile is agent-neutral: the contract names roles, not products. With Hermes the mapping
-is one profile per role, one board per repository, and cards whose body carries
-`Spec: odd/tasks/<feature>.md, T2, S3-S4`. The board is the queue and the audit trail; the task
-file is the specification; the exit command is the only definition of done. `review` and
-`judge` run on a different model from `dev`, for the same reason the kit's eval uses a
-different judge: the executor does not grade itself.
+The profile is agent-neutral: the contract names roles, not products, and `dev-agent roles
+<claude|opencode>` renders one agent definition per role from `roles.json` (a Hermes profile
+per role is created from the same file). One instance per role, one board per repository, and
+cards whose body carries `Spec: odd/tasks/<feature>.md, T2, S3-S4`. The board is the queue and
+the audit trail; the task file is the specification; the exit command is the only definition
+of done. `review` and `judge` run on a different model from `dev`, for the same reason the
+kit's eval uses a different judge: the executor does not grade itself.
 
 ## Design notes
 

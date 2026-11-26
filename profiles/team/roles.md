@@ -101,9 +101,11 @@ requires the same hash after it.
 
 ## Runner mapping
 
-The contract is agent-neutral: one agent instance per role, whatever runs it. With Hermes, the
-practical mapping is one profile per role, the same model family but a different model for
-`review` and `judge` than for `dev`, and one board per repository whose cards carry the task
-file path. The board is the queue and the audit trail; the task file is the specification; the
-gate commands are the only definition of done. A free-form chat between agents is not part of
-this contract, because it leaves no row anyone can read later.
+The contract is agent-neutral: one agent instance per role, whatever runs it, and the same
+`roles.json` renders the definitions for each agent (`dev-agent roles claude|opencode`, and a
+Hermes profile per role created from the same file). The practical mapping is one instance per
+role, the same model family but a different model for `review` and `judge` than for `dev`, and
+one queue per repository whose cards carry the task file path. The queue is the audit trail;
+the task file is the specification; the gate commands are the only definition of done. A
+free-form chat between agents is not part of this contract, because it leaves no row anyone
+can read later.

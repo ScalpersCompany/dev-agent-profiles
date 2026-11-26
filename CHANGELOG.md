@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.1] - 2026-11-26
+
+### Cambiado
+
+- `profiles/team` 0.1.2: el contrato y su README nombran el rol y no el producto, y el mapeo
+  por agente se genera del mismo `roles.json` (`dev-agent roles <claude|opencode>`), sin
+  presentar ningún agente como el de referencia.
+
 ## [1.9.0] - 2026-11-26
 
 ### Added
