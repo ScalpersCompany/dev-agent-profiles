@@ -6,8 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-PROFILE = Path(__file__).resolve().parents[1]
-RUNNER = PROFILE / "bin" / "team-run.sh"
+FLOW = Path(__file__).resolve().parents[1]
+RUNNER = FLOW / "bin" / "team-run.sh"
 
 TASK_FILE = (
     "# Demo\n\n"
@@ -27,7 +27,7 @@ class TeamRunCase(unittest.TestCase):
         self.repo = self.tmp / "repo"
         (self.repo / "odd" / "tasks").mkdir(parents=True)
         (self.repo / ".dev-agent" / "profiles").mkdir(parents=True)
-        shutil.copytree(PROFILE, self.repo / ".dev-agent" / "profiles" / "team")
+        shutil.copytree(FLOW, self.repo / ".dev-agent" / "profiles" / "team")
         self.write_task(TASK_FILE)
 
     def write_task(self, body):

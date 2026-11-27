@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.10.0] - 2026-11-27
+
+### Cambiado
+
+- `profiles/team` se convierte en `flows/team`: el flujo no es un perfil activable. Compone el
+  perfil de lenguaje activo (o el declarado en `.dev-agent/team.env`) y se ejecuta con
+  `dev-agent flow run team --spec <task-file>`.
+- `flow.json` sustituye a `profile.json`; `entrypoint` sustituye a `runner`; `roles.json` usa
+  `flow` en lugar de `profile`.
+- `dev-agent flow list|run` descubre los flujos en `dev-agent-profiles/flows`; `dev-agent roles`
+  sigue aceptando la ruta antigua de `profiles/team` para instalaciones existentes.
+- El guard `guard/team.sh` se retira del flujo: el contrato se valida dentro del runner y el
+  perfil base sigue aportando guard y verify. Las instalaciones antiguas conservan su copia.
+
+### Added
+
+- `flow.json` y `flow.schema.json` con nombre, versión, entrypoint, contrato, base y etapas.
+- Tests del contrato de flujo y del comando `dev-agent flow` en el kit.
+
 ## [1.9.1] - 2026-11-26
 
 ### Cambiado

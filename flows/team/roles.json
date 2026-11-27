@@ -1,39 +1,66 @@
 {
   "api": 1,
-  "profile": "team",
   "handoff": "task-file-reference",
   "base_profile_key": "TEAM_BASE_PROFILE",
-  "placeholders": ["{task_file}", "{module}", "{tree}", "{run_id}", "{case_dir}", "{score_file}"],
+  "placeholders": [
+    "{task_file}",
+    "{module}",
+    "{tree}",
+    "{run_id}",
+    "{case_dir}",
+    "{score_file}"
+  ],
   "roles": [
     {
       "role": "plan",
       "stage": "specification",
-      "writes": ["odd/tasks/{task_file}.md"],
-      "reads": ["docs/FEATURE_MAP.md", "docs/agent-quality/ENVIRONMENT.md"],
+      "writes": [
+        "odd/tasks/{task_file}.md"
+      ],
+      "reads": [
+        "docs/FEATURE_MAP.md",
+        "docs/agent-quality/ENVIRONMENT.md"
+      ],
       "readonly": false,
       "runs_on_copy": false,
       "owns_worktree": false,
       "entry": "dev-agent guard --staged",
       "exit": [
         {
-          "command": "python3 .dev-agent/profiles/team/guard/team_lint.py --task odd/tasks/{task_file}.md",
+          "command": "python3 .dev-agent/flows/team/guard/team_lint.py --task odd/tasks/{task_file}.md",
           "expect": "exit 0"
         }
       ],
-      "forbidden": ["git push", "production URL", "shared database", "source change"]
+      "forbidden": [
+        "git push",
+        "production URL",
+        "shared database",
+        "source change"
+      ]
     },
     {
       "role": "dev",
       "stage": "implementation",
-      "writes": ["addons/{module}/**"],
-      "reads": ["odd/tasks/{task_file}.md", "docs/agent-quality/ENVIRONMENT.md"],
+      "writes": [
+        "addons/{module}/**"
+      ],
+      "reads": [
+        "odd/tasks/{task_file}.md",
+        "docs/agent-quality/ENVIRONMENT.md"
+      ],
       "readonly": false,
       "runs_on_copy": false,
       "owns_worktree": true,
       "entry": "dev-agent guard --staged",
       "exit": [
-        {"command": "dev-agent guard --staged", "expect": "exit 0"},
-        {"command": "bash verify/run.sh", "expect": "exit 0"}
+        {
+          "command": "dev-agent guard --staged",
+          "expect": "exit 0"
+        },
+        {
+          "command": "bash verify/run.sh",
+          "expect": "exit 0"
+        }
       ],
       "forbidden": [
         "git push",
@@ -46,13 +73,19 @@
       "role": "review",
       "stage": "review",
       "writes": [],
-      "reads": ["odd/tasks/{task_file}.md", "evidence/{run_id}/summary.json"],
+      "reads": [
+        "odd/tasks/{task_file}.md",
+        "evidence/{run_id}/summary.json"
+      ],
       "readonly": true,
       "runs_on_copy": true,
       "owns_worktree": false,
       "entry": "dev-agent review-gga {tree}",
       "exit": [
-        {"command": "dev-agent review-gga {tree}", "expect": "STATUS: PASSED"}
+        {
+          "command": "dev-agent review-gga {tree}",
+          "expect": "STATUS: PASSED"
+        }
       ],
       "forbidden": [
         "git push",
@@ -65,14 +98,16 @@
       "role": "verify",
       "stage": "verification",
       "writes": [],
-      "reads": ["odd/tasks/{task_file}.md"],
+      "reads": [
+        "odd/tasks/{task_file}.md"
+      ],
       "readonly": true,
       "runs_on_copy": true,
       "owns_worktree": false,
       "entry": "bash verify/run.sh",
       "exit": [
         {
-          "command": "python3 .dev-agent/profiles/team/guard/team_lint.py --evidence evidence/{run_id}",
+          "command": "python3 .dev-agent/flows/team/guard/team_lint.py --evidence evidence/{run_id}",
           "expect": "exit 0"
         }
       ],
@@ -87,14 +122,16 @@
       "role": "judge",
       "stage": "evaluation",
       "writes": [],
-      "reads": ["evals/cases/{case_dir}"],
+      "reads": [
+        "evals/cases/{case_dir}"
+      ],
       "readonly": true,
       "runs_on_copy": true,
       "owns_worktree": false,
       "entry": "dev-agent eval --case-dir evals/cases/{case_dir} --k 3",
       "exit": [
         {
-          "command": "python3 .dev-agent/profiles/team/guard/team_lint.py --score {score_file}",
+          "command": "python3 .dev-agent/flows/team/guard/team_lint.py --score {score_file}",
           "expect": "exit 0"
         }
       ],
@@ -105,5 +142,6 @@
         "score its own run"
       ]
     }
-  ]
+  ],
+  "flow": "team"
 }

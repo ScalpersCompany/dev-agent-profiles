@@ -6,8 +6,9 @@ Environment profiles for `dev-agent-kit`. One directory per environment:
   GGA rules, verify example and the `scalpers-hexagonal-microservice` skill.
 - `profiles/odoo11`: Odoo 11 guard, GGA rules, verify, skills, evals and docs.
 - `profiles/php`: PHP 8 skeleton with its own GGA rules; PHPStan, PHPCS and PHPUnit are the next step.
-- `profiles/team`: role contract for work split across several agents on one repository; plan,
-  dev, review, verify and the eval judge, each with its write surface and exit command.
+- `flows/team`: orchestration flow for work split across several agents on one repository; plan,
+  dev, review, verify and the eval judge, each with its write surface and exit command. It runs
+  over one active language profile; it is not an activatable profile.
 
 The core keeps the contract, the gate and the hooks. A profile supplies the language
 content; it does not replace `guard`, `verify` or the hooks. Each profile also owns its
@@ -25,7 +26,7 @@ real user flows and the disposable environment; the baseline is not a substitute
 | Repository | Role |
 |---|---|
 | `ScalpersCompany/dev-agent-kit` | core contract, gate, hooks and template |
-| `ScalpersCompany/dev-agent-profiles` | this repository: Odoo 11, PHP 8 and hexagonal profiles |
+| `ScalpersCompany/dev-agent-profiles` | this repository: Odoo 11, PHP 8 and hexagonal profiles, plus the team flow |
 | `ScalpersCompany/scalpers-tech-doc` | company norm and documentation; canonical `AGENTS.md`, linked at `~/.agents/AGENTS.md`; checked by the core `scripts/check-techdoc.sh` |
 | Your development repository | product code in Odoo, PHP or any stack; receives the kit and the active profile at its root, not a copy of the norm |
 

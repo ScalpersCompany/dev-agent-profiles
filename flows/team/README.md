@@ -1,24 +1,23 @@
-# Team profile
+# Team flow
 
-Profile for work split across several agents on the same repository. It fixes who writes
+Flow for work split across several agents on the same repository. It fixes who writes
 what, what closes each stage, and how one stage hands off to the next, so that several agents
 (one per role, any runner) produce the same auditable result as one careful developer.
 
-It is not a language profile. It adds the role contract and delegates the language checks to
-the profile declared as its base, so `guard` and `verify` keep one implementation.
+It is not a language profile. It adds the role flow and delegates the language checks to
+the active profile (or the one declared in `.dev-agent/team.env`), so `guard` and `verify`
+keep one implementation.
 
 ## Contents
 
 ```text
-profile.json                 contract, declares the runner
-profile.env                  runtime values
-profile.schema.json          schema of profile.json
+flow.json                    flow contract, declares the entrypoint
+flow.schema.json             schema of flow.json
 roles.json                   machine-readable role contract
 roles.schema.json            schema of roles.json
 roles.md                     the same contract for a person
 AGENTS.fragment.md           multi-agent rules added to the repo AGENTS.md
 gga/REVIEW-RULES.md          blocking rules appended to the core GGA rules
-guard/team.sh                guard entry point: contract, then the base profile checks
 guard/team_lint.py           contract, task file, evidence, score and tree checks
 bin/team-run.sh              the four stages in fixed order, stopping at the first red
 bin/stub-cli.sh              fake CLI for the runner tests and for a dry rehearsal
@@ -42,28 +41,29 @@ tests/                       unit tests for the contract, the checks and the run
 
 ## Use
 
-Install the language profile first and the team profile next to it, then declare the base:
+Install the language profile first, then run the flow from the repository:
 
 ```bash
-cp -a profiles/odoo11 /path/to/repo/.dev-agent/profiles/odoo11
-cp -a profiles/team   /path/to/repo/.dev-agent/profiles/team
-printf 'DEV_AGENT_PROFILE=team\n' > /path/to/repo/.dev-agent/config
-printf 'TEAM_BASE_PROFILE=odoo11\n' > /path/to/repo/.dev-agent/team.env
+dev-agent flow list
+dev-agent flow run team --spec odd/tasks/<feature>.md --dry-run
 ```
 
-`guard/guard.sh` then runs `guard/team.sh`, which validates the role contract and executes the
-base profile's guard scripts. `verify/run.sh` reads `.dev-agent/verify.env`; the team example
-sources the base profile's config instead of duplicating its commands.
+`dev-agent flow` finds `flows/team` in `dev-agent-profiles`; it does not activate a profile.
+If the repo needs an explicit base, write `TEAM_BASE_PROFILE=odoo11` in `.dev-agent/team.env`.
+
+The flow runner validates the role contract and each stage; the active profile supplies guard
+and verify. `verify/run.sh` reads `.dev-agent/verify.env`; the flow example sources the base
+profile config instead of duplicating commands.
 
 Checks, by hand:
 
 ```bash
-python3 .dev-agent/profiles/team/guard/team_lint.py
-python3 .dev-agent/profiles/team/guard/team_lint.py --task odd/tasks/<feature>.md
-python3 .dev-agent/profiles/team/guard/team_lint.py --evidence evidence/<run-id>
-python3 .dev-agent/profiles/team/guard/team_lint.py --score evals/runs/<run-id>/score.json
-python3 .dev-agent/profiles/team/guard/team_lint.py --tree-snapshot <tree>
-python3 .dev-agent/profiles/team/guard/team_lint.py --tree-unchanged <tree> <hash>
+python3 flows/team/guard/team_lint.py
+python3 flows/team/guard/team_lint.py --task odd/tasks/<feature>.md
+python3 flows/team/guard/team_lint.py --evidence evidence/<run-id>
+python3 flows/team/guard/team_lint.py --score evals/runs/<run-id>/score.json
+python3 flows/team/guard/team_lint.py --tree-snapshot <tree>
+python3 flows/team/guard/team_lint.py --tree-unchanged <tree> <hash>
 ```
 
 The first one is the contract lint and also runs before the others. The last two are how a
@@ -77,10 +77,10 @@ habit: a stage cannot be skipped by forgetting it, and a stage cannot be reporte
 agent that ran it.
 
 ```bash
-.dev-agent/profiles/team/bin/team-run.sh . --spec odd/tasks/<feature>.md
+dev-agent flow run team --spec odd/tasks/<feature>.md
 ```
 
-`profile.json` declares the runner, and `team_lint.py` fails the contract when the declared
+`flow.json` declares the entrypoint, and `team_lint.py` fails the contract when the declared
 file is missing or is not executable.
 
 | Stage | The runner calls | The runner checks, not the agent's text |
@@ -111,7 +111,7 @@ that git does not ignore would make `review` look like it changed the tree it wa
 
 ## Several agents, one board
 
-The profile is agent-neutral: the contract names roles, not products, and `dev-agent roles
+The flow is agent-neutral: the contract names roles, not products, and `dev-agent roles
 <claude|opencode>` renders one agent definition per role from `roles.json` (a Hermes profile
 per role is created from the same file). One instance per role, one board per repository, and
 cards whose body carries `Spec: odd/tasks/<feature>.md, T2, S3-S4`. The board is the queue and
@@ -128,13 +128,13 @@ kit's eval uses a different judge: the executor does not grade itself.
 - Review and verify are read-only by mechanism: they work on a copy and the tree hash taken
   before the stage must match after it. Trusting the agent to not edit was the alternative and
   it does not survive a long session.
-- `team` is an activatable profile that delegates to a base one, instead of a second
-  coordination layer beside the language profile. One active profile per repository stays true,
-  and the language checks keep one implementation.
+- `team` is a flow, not an activatable profile. It composes the active language profile; one
+  active language profile per repository stays true, and the language checks keep one
+  implementation.
 - The planner closes on a linted task file rather than on prose. The `S#`-to-task link is the
   handoff format the rest of the chain depends on, so it is checked, not requested.
 
 ## Boundaries
 
-This profile never pushes, never deploys, never touches production and never uses a shared
+This flow never pushes, never deploys, never touches production and never uses a shared
 database. It does not decide delivery: the human does, after reading the evidence.

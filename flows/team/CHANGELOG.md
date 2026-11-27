@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0] - 2026-11-27
+
+### Cambiado
+
+- El perfil `team` pasa a ser el flujo `flows/team`: `flow.json` con `entrypoint`, contrato
+  de roles y etapas; ya no se activa con `DEV_AGENT_PROFILE`.
+- El runner y `team_lint.py` se ejecutan desde `dev-agent flow run team` o desde la ruta del
+  flujo en `dev-agent-profiles/flows/team`; las instalaciones antiguas conservan su copia.
+- El guard de perfil `guard/team.sh` se retira; el contrato se valida dentro del flujo y el
+  perfil base aporta guard y verify.
+
+
 ## [0.1.3] - 2026-11-26
 
 ### Añadido

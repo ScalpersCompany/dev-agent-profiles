@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "dev-agent-kit team role contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "api",
+    "flow",
+    "handoff",
+    "base_profile_key",
+    "placeholders",
+    "roles"
+  ],
+  "properties": {
+    "api": {
+      "type": "integer",
+      "const": 1
+    },
+    "handoff": {
+      "type": "string",
+      "const": "task-file-reference"
+    },
+    "base_profile_key": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]*$"
+    },
+    "placeholders": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^\\{[a-z][a-z0-9_]*\\}$"
+      },
+      "uniqueItems": true
+    },
+    "roles": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role",
+          "stage",
+          "writes",
+          "reads",
+          "readonly",
+          "runs_on_copy",
+          "owns_worktree",
+          "entry",
+          "exit",
+          "forbidden"
+        ],
+        "properties": {
+          "role": {
+            "enum": [
+              "plan",
+              "dev",
+              "review",
+              "verify",
+              "judge"
+            ]
+          },
+          "stage": {
+            "type": "string",
+            "minLength": 1
+          },
+          "writes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "reads": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "readonly": {
+            "type": "boolean"
+          },
+          "runs_on_copy": {
+            "type": "boolean"
+          },
+          "owns_worktree": {
+            "type": "boolean"
+          },
+          "entry": {
+            "type": "string",
+            "minLength": 1
+          },
+          "exit": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "command",
+                "expect"
+              ],
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "expect": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "forbidden": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "contains": {
+              "const": "git push"
+            }
+          }
+        }
+      }
+    },
+    "flow": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    }
+  }
+}

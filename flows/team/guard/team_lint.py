@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Role contract checks for the team profile."""
+"""Role contract checks for a dev-agent flow."""
 
 import argparse
 import hashlib
@@ -28,6 +28,7 @@ EXIT_KEYS = ("command", "expect")
 ALLOWED_COMMANDS = (
     "dev-agent ",
     "bash verify/run.sh",
+    "python3 .dev-agent/flows/team/guard/team_lint.py",
     "python3 .dev-agent/profiles/team/guard/team_lint.py",
 )
 PLACEHOLDER_RE = re.compile(r"\{[a-z][a-z0-9_]*\}")
@@ -78,27 +79,32 @@ def check_exit(role, command_errors):
             command_errors.append("%s must require exit 0" % label)
 
 
-def contract_errors(profile_dir):
+def contract_errors(flow_dir):
     errors = []
-    profile, problem = load_json(profile_dir / "profile.json")
+    flow, problem = load_json(flow_dir / "flow.json")
     if problem:
         errors.append(problem)
-        profile = {}
-    if not isinstance(profile, dict):
-        errors.append("profile.json must be a JSON object")
-        profile = {}
-    runner = profile.get("runner")
-    if runner is not None:
-        if not isinstance(runner, str) or not runner.strip():
-            errors.append("profile.json runner must be a non-empty string")
-        else:
-            path = profile_dir / runner
-            if not path.is_file():
-                errors.append("missing runner: %s" % runner)
-            elif not os.access(str(path), os.X_OK):
-                errors.append("runner is not executable: %s" % runner)
+        flow = {}
+    if not isinstance(flow, dict):
+        errors.append("flow.json must be a JSON object")
+        flow = {}
+    if flow.get("kind") != "flow":
+        errors.append("flow.json kind must be flow")
+    name = flow.get("name")
+    if not isinstance(name, str) or not name.strip():
+        errors.append("flow.json name must be a non-empty string")
+        name = ""
+    runner = flow.get("entrypoint")
+    if not isinstance(runner, str) or not runner.strip():
+        errors.append("flow.json entrypoint must be a non-empty string")
+    else:
+        path = flow_dir / runner
+        if not path.is_file():
+            errors.append("missing entrypoint: %s" % runner)
+        elif not os.access(str(path), os.X_OK):
+            errors.append("entrypoint is not executable: %s" % runner)
 
-    data, problem = load_json(profile_dir / "roles.json")
+    data, problem = load_json(flow_dir / "roles.json")
     if problem:
         errors.append(problem)
         return errors
@@ -106,8 +112,8 @@ def contract_errors(profile_dir):
         return errors + ["roles.json must be a JSON object"]
     if data.get("api") != 1:
         errors.append("roles.json api must be 1")
-    if data.get("profile") != profile.get("name"):
-        errors.append("roles.json profile does not match profile.json name")
+    if data.get("flow") != name and data.get("profile") != name:
+        errors.append("roles.json flow does not match flow.json name")
     if data.get("handoff") != "task-file-reference":
         errors.append("roles.json handoff must be task-file-reference")
     placeholders = data.get("placeholders")
@@ -185,7 +191,7 @@ def contract_errors(profile_dir):
         else:
             check_exit(role, errors)
 
-    doc = profile_dir / "roles.md"
+    doc = flow_dir / "roles.md"
     if not doc.is_file():
         errors.append("missing roles.md")
     else:
@@ -335,9 +341,11 @@ def tree_hash(path):
 def main():
     parser = argparse.ArgumentParser(description="Check the team role contract")
     parser.add_argument(
+        "--flow",
         "--profile",
+        dest="flow",
         default=str(Path(__file__).resolve().parents[1]),
-        help="profile directory",
+        help="flow directory",
     )
     parser.add_argument("--task", help="task file to check")
     parser.add_argument("--evidence", help="evidence run directory to certify")
@@ -371,7 +379,7 @@ def main():
         print("ok: tree unchanged")
         return 0
 
-    errors = contract_errors(Path(args.profile))
+    errors = contract_errors(Path(args.flow))
     if args.task:
         errors.extend(task_errors(Path(args.task)))
     if args.evidence:
@@ -382,7 +390,7 @@ def main():
         for error in errors:
             print("error: %s" % error, file=sys.stderr)
         return 1
-    print("ok: %s" % Path(args.profile).resolve())
+    print("ok: %s" % Path(args.flow).resolve())
     return 0
 
 

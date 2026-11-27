@@ -1,4 +1,4 @@
-# GGA rules — team profile
+# GGA rules — team flow
 
 These rules are appended to the DevAgentKit core GGA rules. They add the contract for work
 split across several agents on one repository: who may write, what proves a stage, and how one

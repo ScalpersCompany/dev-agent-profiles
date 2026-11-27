@@ -6,8 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-PROFILE = Path(__file__).resolve().parents[1]
-LINT = PROFILE / "guard" / "team_lint.py"
+FLOW = Path(__file__).resolve().parents[1]
+LINT = FLOW / "guard" / "team_lint.py"
 
 
 def run_lint(*args):
@@ -23,7 +23,7 @@ class TestTeamLint(unittest.TestCase):
         self.tmp = Path(tempfile.mkdtemp(prefix="team-lint-"))
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.copy = self.tmp / "team"
-        shutil.copytree(PROFILE, self.copy)
+        shutil.copytree(FLOW, self.copy)
 
     def roles(self):
         return json.loads((self.copy / "roles.json").read_text(encoding="utf-8"))
@@ -40,7 +40,7 @@ class TestTeamLint(unittest.TestCase):
         return path
 
     def test_real_profile_passes(self):
-        result = run_lint("--profile", str(PROFILE))
+        result = run_lint("--profile", str(FLOW))
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("ok:", result.stdout)
 
@@ -222,20 +222,20 @@ class TestTeamLint(unittest.TestCase):
         self.assertEqual(changed.returncode, 1)
         self.assertIn("tree changed", changed.stderr)
 
-    def test_missing_runner_is_rejected(self):
-        data = json.loads((self.copy / "profile.json").read_text(encoding="utf-8"))
-        data["runner"] = "bin/nope.sh"
-        (self.copy / "profile.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
+    def test_missing_entrypoint_is_rejected(self):
+        data = json.loads((self.copy / "flow.json").read_text(encoding="utf-8"))
+        data["entrypoint"] = "bin/nope.sh"
+        (self.copy / "flow.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
         result = run_lint("--profile", str(self.copy))
         self.assertEqual(result.returncode, 1)
-        self.assertIn("missing runner: bin/nope.sh", result.stderr)
+        self.assertIn("missing entrypoint: bin/nope.sh", result.stderr)
 
-    def test_runner_without_the_execute_bit_is_rejected(self):
+    def test_entrypoint_without_the_execute_bit_is_rejected(self):
         runner = self.copy / "bin" / "team-run.sh"
         runner.chmod(0o644)
         result = run_lint("--profile", str(self.copy))
         self.assertEqual(result.returncode, 1)
-        self.assertIn("runner is not executable", result.stderr)
+        self.assertIn("entrypoint is not executable", result.stderr)
 
 
 if __name__ == "__main__":

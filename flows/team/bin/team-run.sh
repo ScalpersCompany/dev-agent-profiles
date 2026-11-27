@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-PROFILE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+FLOW_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 STAGES="plan dev review verify"
 EXIT_USAGE=10
@@ -25,7 +25,7 @@ whose gate fails.
 
 Environment:
   TEAM_CLI            CLI binary (default: hermes)
-  TEAM_PYTHON         python used for the profile checks (default: python3)
+  TEAM_PYTHON         python used for the flow checks (default: python3)
   TEAM_STAGE_TIMEOUT  seconds per stage (default: 1800)
   TEAM_MAX_TURNS      turn cap per stage (default: 40)
   TEAM_EVIDENCE       evidence directory, relative to <repo> (default: evidence)
@@ -70,7 +70,7 @@ while [ $# -gt 0 ]; do
         STUB="$2"
         shift 2
       else
-        STUB="$PROFILE_DIR/bin/stub-cli.sh"
+        STUB="$FLOW_DIR/bin/stub-cli.sh"
         shift
       fi
       ;;
@@ -137,8 +137,9 @@ esac
 run_dir="$evidence_dir/$RUN_ID"
 verdict="$run_dir/review.md"
 
-lint="$repo/.dev-agent/profiles/team/guard/team_lint.py"
-[ -f "$lint" ] || lint="$PROFILE_DIR/guard/team_lint.py"
+lint="$repo/.dev-agent/flows/team/guard/team_lint.py"
+[ -f "$lint" ] || lint="$repo/.dev-agent/profiles/team/guard/team_lint.py"
+[ -f "$lint" ] || lint="$FLOW_DIR/guard/team_lint.py"
 
 stage_query() {
   case "$1" in
@@ -172,7 +173,7 @@ gate_plan() {
     return 1
   fi
   if [ ! -f "$lint" ]; then
-    printf 'missing profile check: %s\n' "$lint"
+    printf 'missing flow check: %s\n' "$lint"
     return 1
   fi
   if ! "$PYTHON" "$lint" --task "$spec_abs" >"$run_dir/plan.team_lint.log" 2>&1; then
@@ -218,7 +219,7 @@ gate_review() {
 
 gate_verify() {
   if [ ! -f "$lint" ]; then
-    printf 'missing profile check: %s\n' "$lint"
+    printf 'missing flow check: %s\n' "$lint"
     return 1
   fi
   if ! "$PYTHON" "$lint" --evidence "$run_dir" >"$run_dir/verify.team_lint.log" 2>&1; then

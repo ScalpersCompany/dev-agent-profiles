@@ -4,8 +4,8 @@
 person. `guard/team_lint.py` reads the JSON and fails the gate when the two drift apart, when
 a role loses its exit command, or when a read-only role gains a write surface.
 
-The profile does not replace the language profile. It sits on top of it: `guard/team.sh`
-delegates the language checks to the profile named by `TEAM_BASE_PROFILE` in
+The flow does not replace the language flow. It sits on top of it: `guard/team.sh`
+delegates the language checks to the active profile or the one named by `TEAM_BASE_PROFILE` in
 `.dev-agent/team.env` (for example `odoo11`), so `guard` and `verify` keep one implementation.
 
 ## The five roles
@@ -94,7 +94,7 @@ a wall-clock timeout and a turn cap per stage, and then decides with the gate, n
 the role answered:
 
 ```bash
-.dev-agent/profiles/team/bin/team-run.sh <repo> --spec odd/tasks/<feature>.md [--from <stage>] [--dry-run] [--stub-cli]
+.dev-agent/flows/team/bin/team-run.sh <repo> --spec odd/tasks/<feature>.md [--from <stage>] [--dry-run] [--stub-cli]
 ```
 
 | Stage | Gate the runner applies |
@@ -115,8 +115,8 @@ evidence, so the reason a chain stopped is a file and a line, not a recollection
 two commands:
 
 ```bash
-python3 .dev-agent/profiles/team/guard/team_lint.py --tree-snapshot <tree>
-python3 .dev-agent/profiles/team/guard/team_lint.py --tree-unchanged <tree> <hash>
+python3 .dev-agent/flows/team/guard/team_lint.py --tree-snapshot <tree>
+python3 .dev-agent/flows/team/guard/team_lint.py --tree-unchanged <tree> <hash>
 ```
 
 The snapshot hashes `HEAD` plus `git status --porcelain`, so a stray edit, a new untracked file
@@ -127,7 +127,7 @@ requires the same hash after it.
 
 The contract is agent-neutral: one agent instance per role, whatever runs it, and the same
 `roles.json` renders the definitions for each agent (`dev-agent roles claude|opencode`, and a
-Hermes profile per role created from the same file). The practical mapping is one instance per
+Hermes flow per role created from the same file). The practical mapping is one instance per
 role, the same model family but a different model for `review` and `judge` than for `dev`, and
 one queue per repository whose cards carry the task file path. The queue is the audit trail;
 the task file is the specification; the gate commands are the only definition of done. A

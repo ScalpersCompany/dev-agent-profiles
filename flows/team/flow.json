@@ -1,0 +1,12 @@
+{
+  "name": "team",
+  "version": "1.0.0",
+  "api": 1,
+  "kind": "flow",
+  "description": "Multi-agent flow over one base profile: plan, dev, review, verify and the eval judge, each with its own write surface and exit command",
+  "base_profile": "active",
+  "entrypoint": "bin/team-run.sh",
+  "roles": "roles.json",
+  "stages": ["plan", "dev", "review", "verify"],
+  "agents": "AGENTS.fragment.md"
+}
