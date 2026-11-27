@@ -11,7 +11,7 @@ keep one implementation.
 ## Contents
 
 ```text
-flow.json                    flow contract, declares the entrypoint
+flow.json                    flow contract, declares entrypoint and check
 flow.schema.json             schema of flow.json
 roles.json                   machine-readable role contract
 roles.schema.json            schema of roles.json
