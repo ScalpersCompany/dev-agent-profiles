@@ -115,8 +115,8 @@ evidence, so the reason a chain stopped is a file and a line, not a recollection
 two commands:
 
 ```bash
-python3 .dev-agent/flows/team/guard/team_lint.py --tree-snapshot <tree>
-python3 .dev-agent/flows/team/guard/team_lint.py --tree-unchanged <tree> <hash>
+dev-agent flow check team --tree-snapshot <tree>
+dev-agent flow check team --tree-unchanged <tree> <hash>
 ```
 
 The snapshot hashes `HEAD` plus `git status --porcelain`, so a stray edit, a new untracked file

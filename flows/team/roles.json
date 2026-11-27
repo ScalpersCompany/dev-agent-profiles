@@ -27,7 +27,7 @@
       "entry": "dev-agent guard --staged",
       "exit": [
         {
-          "command": "python3 .dev-agent/flows/team/guard/team_lint.py --task odd/tasks/{task_file}.md",
+          "command": "dev-agent flow check team --task odd/tasks/{task_file}.md",
           "expect": "exit 0"
         }
       ],
@@ -107,7 +107,7 @@
       "entry": "bash verify/run.sh",
       "exit": [
         {
-          "command": "python3 .dev-agent/flows/team/guard/team_lint.py --evidence evidence/{run_id}",
+          "command": "dev-agent flow check team --evidence evidence/{run_id}",
           "expect": "exit 0"
         }
       ],
@@ -131,7 +131,7 @@
       "entry": "dev-agent eval --case-dir evals/cases/{case_dir} --k 3",
       "exit": [
         {
-          "command": "python3 .dev-agent/flows/team/guard/team_lint.py --score {score_file}",
+          "command": "dev-agent flow check team --score {score_file}",
           "expect": "exit 0"
         }
       ],
